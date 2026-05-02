@@ -134,13 +134,12 @@ def build_competitor_report(conn: sqlite3.Connection, brief_id: int) -> dict[str
 
         if source_mode == "brief":
             note = (
-                "Signaux issus de la base RADJ (mots du nom dans titres / textes). "
-                "Couverture limitée aux sources collectées."
+                "Veille ciblée : signaux indexés à partir des mentions du nom dans les titres et contenus agrégés."
             )
         else:
             note = (
-                "Aucun concurrent explicite dans le brief : repères sectoriels. "
-                "Nommez des marques (ex. « Concurrents : X, Y ») pour affiner la veille."
+                "Veille sectorielle : focus sur les acteurs majeurs du secteur. "
+                "Ajoutez des concurrents nommés dans le brief pour affiner le périmètre."
             )
 
         cards.append(

@@ -8,6 +8,7 @@ import {
   getTrendAction,
   momentumCopy,
   type Momentum,
+  type TrendAction,
 } from "../lib/trendInsights";
 
 const sectorHints: Record<string, string[]> = {
@@ -24,6 +25,18 @@ const sectorHints: Record<string, string[]> = {
 
 function sectorsFor(category: string) {
   return sectorHints[category] || sectorHints.general;
+}
+
+/** Évite d’afficher des fragments hex (#RRGGBB) comme faux hashtags. */
+function displayableKeywords(kws: string[] | undefined): string[] {
+  if (!kws?.length) return [];
+  return kws.filter((kw) => {
+    const t = kw.trim();
+    if (!t) return false;
+    if (/^#?[0-9a-f]{6}$/i.test(t)) return false;
+    if (/^#?[0-9a-f]{3}$/i.test(t)) return false;
+    return true;
+  });
 }
 
 function sourceMeta(trend: Trend): string {
@@ -54,7 +67,7 @@ function statusDotClass(trend: Trend): string {
   return "bg-emerald-500";
 }
 
-function ctaSummaryLabel(action: ReturnType<typeof getTrendAction>): string {
+function ctaSummaryLabel(action: TrendAction): string {
   switch (action) {
     case "publish_now":
       return "Agir maintenant";
@@ -62,6 +75,29 @@ function ctaSummaryLabel(action: ReturnType<typeof getTrendAction>): string {
       return "Patienter";
     case "avoid":
       return "Prudence";
+  }
+}
+
+/** Pastilles CTA : une couleur par type de reco (carte + détail). */
+function ctaChipClass(action: TrendAction): string {
+  switch (action) {
+    case "publish_now":
+      return "border-emerald-200 bg-emerald-50 text-emerald-900";
+    case "wait":
+      return "border-sky-200 bg-sky-50 text-sky-900";
+    case "avoid":
+      return "border-amber-200 bg-amber-50 text-amber-900";
+  }
+}
+
+function ctaLectureTitleClass(action: TrendAction): string {
+  switch (action) {
+    case "publish_now":
+      return "text-emerald-900";
+    case "wait":
+      return "text-sky-900";
+    case "avoid":
+      return "text-amber-900";
   }
 }
 
@@ -131,7 +167,7 @@ function TrendDetailBody({ trend }: { trend: Trend }) {
         </div>
         <div className="mt-4 border-t border-slate-200 pt-3">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Lecture</p>
-          <p className="mt-1 font-display text-sm font-semibold text-radj-navy">{aText.label}</p>
+          <p className={`mt-1 font-display text-sm font-semibold ${ctaLectureTitleClass(action)}`}>{aText.label}</p>
           <p className="mt-1 text-[11px] text-slate-600">{aText.sub}</p>
         </div>
       </div>
@@ -159,7 +195,7 @@ function TrendDetailBody({ trend }: { trend: Trend }) {
         <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-700">
           {trend.category}
         </span>
-        {trend.keywords?.map((kw) => (
+        {displayableKeywords(trend.keywords).map((kw) => (
           <span
             key={kw}
             className="rounded-md border border-dashed border-slate-300 px-2 py-0.5 text-[11px] text-slate-600"
@@ -302,7 +338,9 @@ export default function TrendCard({ trend }: { trend: Trend }) {
             {metaLine}
             {trend.item_count > 0 ? ` · ${trend.item_count} signaux` : null}
           </span>
-          <span className="rounded-lg border border-radj-navy/25 bg-radj-lime/35 px-3 py-1.5 text-xs font-semibold text-radj-navy">
+          <span
+            className={`rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-sm ${ctaChipClass(action)}`}
+          >
             {ctaSummaryLabel(action)}
           </span>
         </div>

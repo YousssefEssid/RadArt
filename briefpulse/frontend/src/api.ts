@@ -253,22 +253,16 @@ export function getCompetitorsReport(briefId?: number) {
   return j<CompetitorsReport>(fetch(`${getApiBase()}/api/competitors/report${q}`));
 }
 
-/**
- * Démo Tunisie Telecom / Orange / Ooredoo.
- * 1) API backend si disponible 2) sinon JSON embarqué dans le front (Vite `public/demo/…`) — jamais de page vide.
- */
-export async function getCompetitorsDemo(): Promise<CompetitorsReport> {
+/** Étude concurrentielle télécom (Tunisie) — API puis repli fichier local. */
+export async function getTelecomCompetitiveStudy(): Promise<CompetitorsReport> {
   try {
-    return await j<CompetitorsReport>(fetch(`${getApiBase()}/api/competitors/demo`));
+    return await j<CompetitorsReport>(fetch(`${getApiBase()}/api/competitors/telecom-study`));
   } catch (firstError) {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const localUrl = `${origin}/demo/competitors-tunisia-telecom.json`;
-    const r = await fetch(localUrl);
+    const r = await fetch(`${origin}/studies/telecom-tn.json`);
     if (!r.ok) {
-      const msg = firstError instanceof Error ? firstError.message : "API indisponible";
-      throw new Error(
-        `${msg} — Vérifiez que l’API tourne (ex. uvicorn) sur le port 8000, ou rechargez la page (démo locale).`
-      );
+      const msg = firstError instanceof Error ? firstError.message : "Chargement impossible";
+      throw new Error(`${msg} Vérifiez la connexion au serveur ou rechargez la page.`);
     }
     return r.json() as Promise<CompetitorsReport>;
   }

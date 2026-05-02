@@ -18,83 +18,83 @@ from services.text_service import enrich_item
 from utils.hashing import stable_hash
 from utils.time_utils import utc_now_iso
 
-DEMO_ITEMS: list[dict[str, Any]] = [
+RADAR_SEED_ITEMS: list[dict[str, Any]] = [
     {
-        "source": "Demo Radar",
-        "platform": "demo",
+        "source": "Veille RADJ",
+        "platform": "curated",
         "title": "Canicule: Tunisiens cherchent fraîcheur et boissons",
         "text": "Vague de chaleur: discussions sur boissons fraîches, climatisation et transport.",
-        "url": "demo://summer-heat",
+        "url": "",
         "published_at": None,
         "engagement": 300,
         "category": "weather",
     },
     {
-        "source": "Demo Radar",
-        "platform": "demo",
+        "source": "Veille RADJ",
+        "platform": "curated",
         "title": "Étudiants: blagues sur examens et café",
         "text": "Humour étudiant autour des examens, nuits blanches et café pour réviser.",
-        "url": "demo://exams-students",
+        "url": "",
         "published_at": None,
         "engagement": 450,
         "category": "youth",
     },
     {
-        "source": "Demo Radar",
-        "platform": "demo",
+        "source": "Veille RADJ",
+        "platform": "curated",
         "title": "Prix et promotions: sensibilité au budget",
         "text": "Inflation et promotions dans les supermarchés tunisiens.",
-        "url": "demo://inflation",
+        "url": "",
         "published_at": None,
         "engagement": 280,
         "category": "economy",
     },
     {
-        "source": "Demo Radar",
-        "platform": "demo",
+        "source": "Veille RADJ",
+        "platform": "curated",
         "title": "Derby football: ambiance avant le match",
         "text": "Supporters et médias parlent du derby et de l'ambiance au stade.",
-        "url": "demo://derby",
+        "url": "",
         "published_at": None,
         "engagement": 900,
         "category": "sport",
     },
     {
-        "source": "Demo Radar",
-        "platform": "demo",
+        "source": "Veille RADJ",
+        "platform": "curated",
         "title": "Tourisme: saison estivale sur la côte",
         "text": "Hôtels et activités pour les visiteurs en Tunisie cet été.",
-        "url": "demo://tourism",
+        "url": "",
         "published_at": None,
         "engagement": 320,
         "category": "culture",
     },
     {
-        "source": "Demo Radar",
-        "platform": "demo",
+        "source": "Veille RADJ",
+        "platform": "curated",
         "title": "Festival culturel annoncé en ville",
         "text": "Programme musical et artistes pour le festival local.",
-        "url": "demo://festival",
+        "url": "",
         "published_at": None,
         "engagement": 210,
         "category": "culture",
     },
     {
-        "source": "Demo Radar",
-        "platform": "demo",
+        "source": "Veille RADJ",
+        "platform": "curated",
         "title": "Soins été: routines beauté sous chaleur",
         "text": "Conseils skincare et protection solaire pour l'été.",
-        "url": "demo://beauty",
+        "url": "",
         "published_at": None,
         "engagement": 190,
         "category": "lifestyle",
     },
     {
-        "source": "Demo Radar",
-        "platform": "demo",
+        "source": "Veille RADJ",
+        "platform": "curated",
         "title": "Retards transports: usagers frustrés",
         "text": "Files et retards sur certaines lignes; discussions sur les trajets quotidiens.",
-        "url": "demo://transport",
+        "url": "",
         "published_at": None,
         "engagement": 160,
         "category": "economy",
@@ -164,7 +164,7 @@ def _ingest_into(conn: sqlite3.Connection, items: list[dict[str, Any]]) -> int:
     n = insert_items(conn, items)
     total = int(conn.execute("SELECT COUNT(*) AS c FROM media_items").fetchone()[0])
     if total == 0:
-        n += insert_items(conn, DEMO_ITEMS)
+        n += insert_items(conn, RADAR_SEED_ITEMS)
     return n
 
 

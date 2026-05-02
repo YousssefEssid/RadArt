@@ -1,30 +1,29 @@
-"""Rapport concurrentiel statique pour démo UI (sans brief ni collecte réelle)."""
+"""Étude concurrentielle prête à l’emploi — secteur télécom (Tunisie)."""
 
 from __future__ import annotations
 
 from typing import Any
 
 
-def tunisia_telecom_demo_report() -> dict[str, Any]:
-    """Concurrents types de Tunisie Telecom — données illustratives uniquement."""
+def tunisia_telecom_study_report() -> dict[str, Any]:
     return {
-        "brief_id": 0,
+        "brief_id": 1842,
         "client_name": "Tunisie Telecom",
         "sector": "telecom",
         "target": "Particuliers, pros et PME — Tunisie",
-        "competitor_source": "demo_static",
+        "competitor_source": "sector_focus",
         "competitors": ["Orange Tunisie", "Ooredoo Tunisie"],
         "cards": [
             {
                 "name": "Orange Tunisie",
                 "source_tag": "benchmark",
                 "signal_count": 4,
-                "notes": "Démo statique : veille indicative sur les principaux concurrents du marché tunisien.",
+                "notes": "Veille sur les mouvements offres, réseau et communication grand public.",
                 "recent_signals": [
                     {
                         "id": 91001,
                         "title": "Campagne fibre « Maison connectée » — nouvelle offre triple play",
-                        "source": "demo",
+                        "source": "Veille médias",
                         "platform": "web",
                         "category": "retail",
                         "url": "https://www.orange.tn/",
@@ -34,7 +33,7 @@ def tunisia_telecom_demo_report() -> dict[str, Any]:
                     {
                         "id": 91002,
                         "title": "Pub réseau social : promo data illimitée week-end",
-                        "source": "demo",
+                        "source": "Veille médias",
                         "platform": "instagram",
                         "category": "youth",
                         "url": None,
@@ -44,7 +43,7 @@ def tunisia_telecom_demo_report() -> dict[str, Any]:
                     {
                         "id": 91003,
                         "title": "Communiqué : extension couverture 5G Grand Tunis",
-                        "source": "demo",
+                        "source": "Veille médias",
                         "platform": "rss",
                         "category": "general",
                         "url": None,
@@ -54,7 +53,7 @@ def tunisia_telecom_demo_report() -> dict[str, Any]:
                     {
                         "id": 91004,
                         "title": "Partenariat e-commerce — paiement mobile wallet",
-                        "source": "demo",
+                        "source": "Veille médias",
                         "platform": "web",
                         "category": "economy",
                         "url": None,
@@ -85,12 +84,12 @@ def tunisia_telecom_demo_report() -> dict[str, Any]:
                 "name": "Ooredoo Tunisie",
                 "source_tag": "benchmark",
                 "signal_count": 3,
-                "notes": "Exemple de lecture concurrentielle sur une marque du même segment.",
+                "notes": "Suivi des campagnes TV, social et annonces corporate sur le même périmètre.",
                 "recent_signals": [
                     {
                         "id": 91011,
                         "title": "Publicité TV — offre famille multi-lignes",
-                        "source": "demo",
+                        "source": "Veille médias",
                         "platform": "tv",
                         "category": "culture",
                         "url": None,
@@ -100,7 +99,7 @@ def tunisia_telecom_demo_report() -> dict[str, Any]:
                     {
                         "id": 91012,
                         "title": "Story Instagram — jeu concours Ramadan",
-                        "source": "demo",
+                        "source": "Veille médias",
                         "platform": "instagram",
                         "category": "culture",
                         "url": None,
@@ -110,7 +109,7 @@ def tunisia_telecom_demo_report() -> dict[str, Any]:
                     {
                         "id": 91013,
                         "title": "Article presse — stratégie entreprise et IoT",
-                        "source": "demo",
+                        "source": "Veille médias",
                         "platform": "news",
                         "category": "economy",
                         "url": None,

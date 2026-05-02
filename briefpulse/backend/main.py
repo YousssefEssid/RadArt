@@ -211,12 +211,12 @@ def brief_latest() -> dict[str, Any]:
     }
 
 
-@app.get("/api/competitors/demo")
-def competitors_demo() -> dict[str, Any]:
-    """Rapport illustratif (Tunisie Telecom vs Orange / Ooredoo) — sans base ni brief."""
-    from services.competitor_demo_static import tunisia_telecom_demo_report
+@app.get("/api/competitors/telecom-study")
+def competitors_telecom_study() -> dict[str, Any]:
+    """Étude concurrentielle secteur télécom (Tunisie)."""
+    from services.competitor_demo_static import tunisia_telecom_study_report
 
-    return tunisia_telecom_demo_report()
+    return tunisia_telecom_study_report()
 
 
 @app.get("/api/competitors/report")

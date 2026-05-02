@@ -164,7 +164,7 @@ export default function RadarPage() {
       </div>
 
       <div>
-        <h3 className="mb-2 font-display text-sm font-semibold text-slate-900">Signaux bruts (aperçu)</h3>
+        <h3 className="mb-2 font-display text-sm font-semibold text-slate-900">Signaux bruts</h3>
         <MediaSignalsPreview items={mediaPreview} />
       </div>
     </div>

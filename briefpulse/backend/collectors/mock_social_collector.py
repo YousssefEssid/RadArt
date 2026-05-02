@@ -14,8 +14,8 @@ def fetch_mock_social_items() -> tuple[list[dict[str, Any]], list[dict[str, str]
         for row in raw:
             items.append(
                 {
-                    "source": row.get("source", "mock"),
-                    "platform": row.get("platform", "mock_social"),
+                    "source": row.get("source", "Veille social"),
+                    "platform": row.get("platform", "social"),
                     "title": row.get("title", ""),
                     "text": row.get("text", ""),
                     "url": row.get("url", ""),
@@ -25,7 +25,7 @@ def fetch_mock_social_items() -> tuple[list[dict[str, Any]], list[dict[str, str]
                     "raw_json": json.dumps(row, ensure_ascii=False),
                 }
             )
-        status.append({"source": "mock_social", "status": "ok", "detail": f"{len(items)} items"})
+        status.append({"source": "signaux_sociaux", "status": "ok", "detail": f"{len(items)} items"})
     except Exception as e:
-        status.append({"source": "mock_social", "status": "error", "detail": str(e)[:200]})
+        status.append({"source": "signaux_sociaux", "status": "error", "detail": str(e)[:200]})
     return items, status

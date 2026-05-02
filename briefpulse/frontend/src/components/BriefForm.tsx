@@ -6,7 +6,7 @@ import ScoreBadge from "./ScoreBadge";
 const BRIEF_TEMPLATE_PPTX = "/templates/brief-modele-a-remplir.pptx";
 const BRIEF_TEMPLATE_HTML = "/templates/brief-modele.html";
 
-const DEMO_BRIEF = `Client: Freshy Drink.
+const DEFAULT_SAMPLE_BRIEF = `Client: Freshy Drink.
 We are a beverage brand targeting Tunisian students and young adults.
 We want a humorous summer campaign to increase engagement on TikTok and Instagram.
 Avoid politics and avoid direct health claims.`;
@@ -20,7 +20,7 @@ type Props = {
 
 export default function BriefForm({ onAnalyzed }: Props) {
   const [clientName, setClientName] = useState("Freshy Drink");
-  const [rawBrief, setRawBrief] = useState(DEMO_BRIEF);
+  const [rawBrief, setRawBrief] = useState(DEFAULT_SAMPLE_BRIEF);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [parsed, setParsed] = useState<ParsedBrief | null>(null);

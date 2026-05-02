@@ -2,7 +2,7 @@
 Extract trend-oriented tokens from social-style text (captions, titles).
 
 Works on any string you legally obtain (RSS, official APIs, user-provided exports,
-curated mock data). This module does not fetch from Meta/TikTok.
+curated caption-style samples). This module does not fetch from Meta/TikTok.
 """
 
 from __future__ import annotations
