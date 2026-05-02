@@ -1,0 +1,62 @@
+[
+  {
+    "source": "TikTok Tunisia (mock feed)",
+    "platform": "tiktok_mock",
+    "title": "POV: Logan Paul style reaction aux notes du bac",
+    "text": "Everyone is doing the Logan Paul face when prof says contrôle surprise 💀 #FYP #Tunisie #StudyTok #Bac2026 @campus.tn sound: \"exam panic\" — 2.4M posts use this audio.",
+    "url": "mock://tiktok/bac-logan-react",
+    "published_at": "2026-05-01T11:00:00",
+    "engagement": 2400000,
+    "category": "youth"
+  },
+  {
+    "source": "Instagram Reels TN (mock)",
+    "platform": "instagram_mock",
+    "title": "Summer heat GRWM but Tunisian edition",
+    "text": "GRWM avec brume thermale et glace maison ☀️ #SummerVibes #Tunisia #SkincareRoutine @freshy.drink collab vibes with Logan Paul energy (parody).",
+    "url": "mock://instagram/grwm-heat",
+    "published_at": "2026-05-01T10:30:00",
+    "engagement": 185000,
+    "category": "lifestyle"
+  },
+  {
+    "source": "Facebook Groups TN (mock)",
+    "platform": "facebook_mock",
+    "title": "Prix légumes: où trouver les promos cette semaine?",
+    "text": "Thread: comparatif Aziza, MG, discount — inflation toujours là. #PrixTunisie #Courses @PromoTN partagez vos astuces.",
+    "url": "mock://facebook/prix-promos",
+    "published_at": "2026-05-01T09:15:00",
+    "engagement": 42000,
+    "category": "retail"
+  },
+  {
+    "source": "Mock TikTok Tunisia",
+    "platform": "mock_social",
+    "title": "Students joking about exams and caffeine",
+    "text": "Tunisian students are sharing humorous content about exams, sleepless nights, coffee, snacks and stress. #ExamSeason #Café #GenZ",
+    "url": "mock://social/exams-caffeine",
+    "published_at": "2026-05-01T09:00:00",
+    "engagement": 8200,
+    "category": "youth"
+  },
+  {
+    "source": "Mock Instagram Tunisia",
+    "platform": "mock_social",
+    "title": "Summer heat survival memes",
+    "text": "Local pages are posting memes about heat, cold drinks, air conditioning and transport during hot days. #Canicule #MemeTN",
+    "url": "mock://social/summer-heat",
+    "published_at": "2026-05-01T10:00:00",
+    "engagement": 12000,
+    "category": "lifestyle"
+  },
+  {
+    "source": "Mock Facebook Tunisia",
+    "platform": "mock_social",
+    "title": "Price sensitivity and daily shopping",
+    "text": "People are discussing grocery prices, promotions, discount stores and budget shopping habits. #Budget #Inflation",
+    "url": "mock://social/price-shopping",
+    "published_at": "2026-05-01T08:00:00",
+    "engagement": 6500,
+    "category": "retail"
+  }
+]

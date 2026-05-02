@@ -1,0 +1,30 @@
+# Secrets & env
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.Python
+
+# Node / frontend build
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+
+# Local DB & médias générés
+*.db
+**/generated_media/
+
+# IDE / OS
+.idea/
+.vscode/
+.cursor/
+.DS_Store
+Thumbs.db
+*.log

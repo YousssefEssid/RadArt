@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Charte radj — typos web: Syne (titres) + DM Sans (corps). Remplacer par TS Deniz / 29LT Adir si fichiers fournis. */
+body {
+  margin: 0;
+}
+
+::selection {
+  background: #1c1c68;
+  color: #d7ff7b;
+}
+
