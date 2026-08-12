@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCollectionStatus, getHealth, runCollection } from "@/shared/api";
+import { getCollectionStatus, getHealth, refreshAllIntel } from "@/shared/api";
 import SourceStatus from "@/shared/ui/SourceStatus";
 
 const btnSecondary =
@@ -21,10 +21,7 @@ export default function SourcesPage() {
   });
 
   const collectMutation = useMutation({
-    mutationFn: async () => {
-      await runCollection();
-      await new Promise((r) => setTimeout(r, 2500));
-    },
+    mutationFn: () => refreshAllIntel(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["collect"] });
       await queryClient.invalidateQueries({ queryKey: ["health"] });
@@ -53,16 +50,16 @@ export default function SourcesPage() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="hidden md:block">
-          <h2 className="font-display text-2xl font-semibold text-slate-900">Sources & collecte</h2>
-        </div>
+        <p className="hidden text-sm text-slate-600 md:block">
+          État des collecteurs RSS, APIs et signaux mock — relancez une passe à tout moment.
+        </p>
         <button
           type="button"
           onClick={() => collectMutation.mutate()}
           disabled={refreshing}
           className={btnSecondary}
         >
-          {refreshing ? "Collecte…" : "Lancer une collecte"}
+          {refreshing ? "Collecte de toutes les sources…" : "Lancer une collecte complète"}
         </button>
       </div>
 

@@ -68,7 +68,7 @@ export default function CompetitorsPage() {
   }, [report]);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3 md:hidden">
         <h2 className="font-display text-xl font-semibold text-slate-900">Concurrents</h2>
         {report && !loading ? (
@@ -83,7 +83,9 @@ export default function CompetitorsPage() {
         ) : null}
       </div>
       <div className="hidden md:flex md:flex-wrap md:items-end md:justify-between md:gap-4">
-        <h2 className="font-display text-2xl font-semibold text-slate-900">Concurrents</h2>
+        <p className="max-w-xl text-sm text-slate-600">
+          Étude concurrentielle et signaux associés aux marques du brief.
+        </p>
         {report && !loading ? (
           <div className="flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold tabular-nums text-slate-800">

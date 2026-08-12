@@ -94,7 +94,20 @@ Copy `.env.example` to `.env` at the project root (`RadArt/.env`).
 | `COLLECTION_INTERVAL_MINUTES` | Default `15` |
 | `DATABASE_PATH` | Default `backend/data/radart.db` |
 
-The demo runs with **no API keys** (RSS + mock social + rule-based outputs).
+The demo runs with **no API keys** (RSS + Reddit + iTunes charts + mock social + rule-based outputs).
+
+### Extra collectors (public, no login)
+
+| Source | What it captures |
+|--------|------------------|
+| RSS (TN + Afrique + Billboard/NME/Variety/Verge/Know Your Meme) | News, music, entertainment |
+| Google News RSS (TN + FR + US queries) | Viral / tiktok / meme / songs headlines |
+| Reddit hot JSON (`r/Tunisia`, memes, videos, Music, soccer, …) | What people hop on right now |
+| iTunes charts (TN / FR / US songs + TN clips) | Songs & music videos going mainstream |
+| YouTube Data API | Optional, if `YOUTUBE_API_KEY` is set |
+| SerpApi Google Trends | Optional, if `SERPAPI_API_KEY` is set |
+
+Still **no unofficial Meta/TikTok scrape** (ToS). Social-style captions for demo live in `backend/data/mock_social_trends.json`.
 
 ## Legal / collection note
 

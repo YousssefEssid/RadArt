@@ -10,6 +10,7 @@ import {
   type Momentum,
   type TrendAction,
 } from "@/shared/lib/trendInsights";
+import { formatAbsoluteFr, formatRelativeFr, freshnessFor, parseIsoDate } from "@/shared/lib/timeAgo";
 
 const sectorHints: Record<string, string[]> = {
   weather: ["Food & beverage", "Retail", "Tourism"],
@@ -37,6 +38,15 @@ function displayableKeywords(kws: string[] | undefined): string[] {
     if (/^#?[0-9a-f]{3}$/i.test(t)) return false;
     return true;
   });
+}
+
+function trendLastDate(trend: Trend): Date | null {
+  return (
+    parseIsoDate(trend.last_seen_at) ||
+    parseIsoDate(trend.updated_at) ||
+    parseIsoDate(trend.latest_items?.[0]?.published_at) ||
+    parseIsoDate(trend.latest_items?.[0]?.collected_at)
+  );
 }
 
 function sourceMeta(trend: Trend): string {
@@ -172,6 +182,27 @@ function TrendDetailBody({ trend }: { trend: Trend }) {
         </div>
       </div>
 
+      {(() => {
+        const when = trendLastDate(trend);
+        if (!when) return null;
+        const fresh = freshnessFor(when);
+        const first = parseIsoDate(trend.first_seen_at);
+        return (
+          <div className={`mt-4 rounded-xl border px-3 py-3 ${fresh.className}`}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide">Fraîcheur</p>
+              <span className="rounded-md bg-white/80 px-2 py-0.5 text-xs font-semibold">{fresh.label}</span>
+            </div>
+            <p className="mt-1 text-sm font-semibold">Vu {formatRelativeFr(when)}</p>
+            <p className="mt-0.5 text-[11px] opacity-80">
+              {formatAbsoluteFr(when)}
+              {first && first.getTime() !== when.getTime() ? ` · 1er signal ${formatRelativeFr(first)}` : ""}
+            </p>
+            <p className="mt-1 text-[11px]">{fresh.hint}</p>
+          </div>
+        );
+      })()}
+
       <dl className="mt-4 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-4">
         <div className="rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-sm">
           <dt className="text-slate-500">Sources</dt>
@@ -224,6 +255,10 @@ function TrendDetailBody({ trend }: { trend: Trend }) {
           {trend.latest_items.map((it) => (
             <li key={it.id} className="min-w-0">
               <span className="font-medium text-radj-navy">{it.source}</span> · {it.title}
+              {(() => {
+                const d = parseIsoDate(it.published_at) || parseIsoDate(it.collected_at);
+                return d ? <span className="text-slate-400"> · {formatRelativeFr(d)}</span> : null;
+              })()}
               {it.url ? (
                 <a
                   href={it.url}
@@ -312,7 +347,7 @@ export default function TrendCard({ trend }: { trend: Trend }) {
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? dialogId : undefined}
-        className="flex h-full w-full flex-col rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm ring-1 ring-slate-900/5 transition hover:border-slate-300 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-radj-navy"
+        className="flex h-full w-full flex-col rounded-2xl border border-radj-mist bg-white p-4 text-left shadow-card transition hover:-translate-y-0.5 hover:border-radj-navy/25 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-radj-navy"
       >
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
@@ -334,15 +369,34 @@ export default function TrendCard({ trend }: { trend: Trend }) {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-slate-500">
             {metaLine}
             {trend.item_count > 0 ? ` · ${trend.item_count} signaux` : null}
+            {(() => {
+              const when = trendLastDate(trend);
+              return when ? ` · ${formatRelativeFr(when)}` : "";
+            })()}
           </span>
-          <span
-            className={`rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-sm ${ctaChipClass(action)}`}
-          >
-            {ctaSummaryLabel(action)}
-          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(() => {
+              const when = trendLastDate(trend);
+              if (!when) return null;
+              const fresh = freshnessFor(when);
+              return (
+                <span
+                  title={`${fresh.hint} (${formatAbsoluteFr(when)})`}
+                  className={`rounded-lg border px-2 py-1 text-[11px] font-semibold ${fresh.className}`}
+                >
+                  {fresh.label}
+                </span>
+              );
+            })()}
+            <span
+              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-sm ${ctaChipClass(action)}`}
+            >
+              {ctaSummaryLabel(action)}
+            </span>
+          </div>
         </div>
       </button>
 

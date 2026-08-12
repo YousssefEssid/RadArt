@@ -13,7 +13,7 @@ type Props = {
   onChange: (next: DashboardFilters) => void;
 };
 
-const PRESETS = ["sport", "economy", "youth", "weather", "culture", "retail", "lifestyle", "politics"];
+const PRESETS = ["viral", "culture", "sport", "economy", "youth", "weather", "retail", "lifestyle", "politics"];
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-radj-navy focus:ring-2 focus:ring-radj-navy/20";
@@ -24,13 +24,13 @@ export default function FilterBar({ categories, platforms, value, onChange }: Pr
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
+    <section className="rounded-2xl border border-radj-mist bg-white p-4 shadow-card">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-display text-sm font-semibold text-slate-900">Filtres</h3>
         <button
           type="button"
-          onClick={() => onChange({ category: "", platform: "", q: "", minTrendScore: "", maxRisk: "" })}
-          className="text-xs font-medium text-radj-navy hover:text-radj-lime hover:underline"
+          onClick={() => onChange({ category: "", platform: "", q: "", minTrendScore: "55", maxRisk: "" })}
+          className="text-xs font-medium text-radj-navy hover:underline"
         >
           Reset
         </button>
@@ -88,7 +88,7 @@ export default function FilterBar({ categories, platforms, value, onChange }: Pr
           />
         </label>
         <label className="block text-[11px] font-medium text-slate-700">
-          Pulse min
+          Score min (tendance chaude)
           <input
             type="number"
             min={0}

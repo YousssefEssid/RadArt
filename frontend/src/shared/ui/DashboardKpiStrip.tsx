@@ -25,7 +25,7 @@ export default function DashboardKpiStrip({
   const activeTrends = trends.length;
 
   const card =
-    "rounded-2xl border border-stone-200/80 bg-[#faf8f5] px-4 py-3 shadow-sm ring-1 ring-stone-900/5";
+    "rounded-2xl border border-radj-mist bg-white px-4 py-3 shadow-card";
 
   return (
     <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">

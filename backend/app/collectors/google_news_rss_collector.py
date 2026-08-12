@@ -21,10 +21,9 @@ from app.seed_sources import GOOGLE_NEWS_RSS_QUERIES
 from app.utils.safety import request_headers
 
 
-def _rss_url(query: str) -> str:
-    # French / Tunisia-centric discovery; hl/gl/ceid follow Google News RSS conventions.
+def _rss_url(query: str, hl: str = "fr", gl: str = "TN", ceid: str = "TN:fr") -> str:
     q = quote_plus(query)
-    return f"https://news.google.com/rss/search?q={q}&hl=fr&gl=TN&ceid=TN:fr"
+    return f"https://news.google.com/rss/search?q={q}&hl={hl}&gl={gl}&ceid={ceid}"
 
 
 def _published(entry: Any) -> str | None:
@@ -45,7 +44,12 @@ def fetch_google_news_rss_items() -> tuple[list[dict[str, Any]], list[dict[str, 
     for spec in GOOGLE_NEWS_RSS_QUERIES:
         q = spec["q"]
         category = spec.get("category", "general")
-        url = _rss_url(q)
+        url = _rss_url(
+            q,
+            hl=str(spec.get("hl") or "fr"),
+            gl=str(spec.get("gl") or "TN"),
+            ceid=str(spec.get("ceid") or "TN:fr"),
+        )
         try:
             resp = requests.get(url, headers=request_headers(), timeout=10, verify=verify)
             resp.raise_for_status()

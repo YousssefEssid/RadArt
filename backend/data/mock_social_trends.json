@@ -58,5 +58,55 @@
     "published_at": "2026-05-01T08:00:00",
     "engagement": 6500,
     "category": "retail"
+  },
+  {
+    "source": "TikTok Tunisia",
+    "platform": "tiktok",
+    "title": "Audio qui explose: tout le monde hop on the sound",
+    "text": "Un audio rap tunisien tourne en boucle — duos, transitions voiture, café de quartier. Marques locales jump on the sound. #FYP #RapTN #ViralAudio #Tunisie",
+    "url": "",
+    "published_at": "2026-08-10T18:20:00",
+    "engagement": 910000,
+    "category": "viral"
+  },
+  {
+    "source": "Instagram Reels TN",
+    "platform": "instagram",
+    "title": "Meme derby: le visage du supporter après le penalty",
+    "text": "Le même template photo tourne après le derby — agences et pages foot remixent le meme en 2h. #Derby #FootballTN #Meme",
+    "url": "",
+    "published_at": "2026-08-09T21:05:00",
+    "engagement": 340000,
+    "category": "sport"
+  },
+  {
+    "source": "YouTube Shorts",
+    "platform": "youtube",
+    "title": "Clip + dance challenge repris hors Tunisie",
+    "text": "Un clip maghrébin spawn un dance challenge; versions US/FR arrivent. Agences collab avec créateurs pour hop on. #DanceChallenge #MusicVideo #Viral",
+    "url": "",
+    "published_at": "2026-08-08T14:00:00",
+    "engagement": 1250000,
+    "category": "culture"
+  },
+  {
+    "source": "TikTok Global",
+    "platform": "tiktok",
+    "title": "World meme format localisé en darija / tunisien",
+    "text": "Un format meme mondial (POV / \"tell me without telling me\") est recaptionné en tunisien. Marques qui collent le format gagnent du reach. #Meme #POV #Localize",
+    "url": "",
+    "published_at": "2026-08-07T09:40:00",
+    "engagement": 670000,
+    "category": "viral"
+  },
+  {
+    "source": "Facebook Tunisia",
+    "platform": "facebook",
+    "title": "Tout le monde parle de la même vidéo WhatsApp",
+    "text": "Vidéo relancée en stories et groupes famille — humour + actualité. Fenêtre courte pour une marque qui veut surfer sans forcer. #WhatsApp #ViralTN",
+    "url": "",
+    "published_at": "2026-08-11T07:15:00",
+    "engagement": 88000,
+    "category": "viral"
   }
 ]

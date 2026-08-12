@@ -7,18 +7,20 @@ import {
   getMediaItems,
   getMetaFilters,
   getTrends,
-  runCollection,
+  refreshAllIntel,
 } from "@/shared/api";
 import DashboardKpiStrip from "@/shared/ui/DashboardKpiStrip";
 import FilterBar, { type DashboardFilters } from "@/shared/ui/FilterBar";
 import MediaSignalsPreview from "@/shared/ui/MediaSignalsPreview";
-import TrendCard from "@/shared/ui/TrendCard";
+import TrendPlatformGroups from "@/shared/ui/TrendPlatformGroups";
+
+const HOT_TREND_MIN = 55;
 
 const DEFAULT_FILTERS: DashboardFilters = {
   category: "",
   platform: "",
   q: "",
-  minTrendScore: "",
+  minTrendScore: String(HOT_TREND_MIN),
   maxRisk: "",
 };
 
@@ -48,7 +50,8 @@ export default function RadarPage() {
 
   const mediaApiFilters = useMemo(
     () => ({
-      limit: 25,
+      limit: 80,
+      per_platform: 6,
       category: filters.category || undefined,
       platform: filters.platform || undefined,
       q: filters.q || undefined,
@@ -86,16 +89,19 @@ export default function RadarPage() {
   });
 
   const refreshMutation = useMutation({
-    mutationFn: async () => {
-      await runCollection();
-      await new Promise((r) => setTimeout(r, 2500));
-    },
+    mutationFn: () => refreshAllIntel(),
     onSuccess: async () => {
       await queryClient.invalidateQueries();
     },
   });
 
-  const trends = trendsQuery.data ?? [];
+  const allTrends = trendsQuery.data ?? [];
+  const trends = useMemo(() => {
+    const min = parseNum(filters.minTrendScore) ?? HOT_TREND_MIN;
+    const hot = allTrends.filter((t) => t.trend_score >= min);
+    if (hot.length >= 4) return hot;
+    return [...allTrends].sort((a, b) => b.trend_score - a.trend_score).slice(0, 6);
+  }, [allTrends, filters.minTrendScore]);
   const mediaPreview = mediaQuery.data ?? [];
   const meta = metaQuery.data ?? { categories: [], platforms: [] };
   const collectStatus = collectQuery.data ?? null;
@@ -113,21 +119,21 @@ export default function RadarPage() {
           disabled={refreshing}
           className="shrink-0 rounded-lg border border-radj-navy bg-radj-navy px-3 py-1.5 text-xs font-semibold text-radj-lime shadow-sm hover:bg-radj-navy/90 disabled:opacity-50"
         >
-          {refreshing ? "…" : "Rafraîchir"}
+          {refreshing ? "Sources…" : "Rafraîchir"}
         </button>
       </div>
 
-      <div className="hidden md:flex md:flex-wrap md:items-center md:justify-between md:gap-4">
-        <div>
-          <h2 className="font-display text-2xl font-semibold text-slate-900">Tableau de bord — tendances en cours</h2>
-        </div>
+      <div className="hidden md:flex md:flex-wrap md:items-end md:justify-between md:gap-4">
+        <p className="max-w-xl text-sm text-slate-600">
+          Tendances détectées sur les signaux collectés — filtrez par secteur, plateforme ou score.
+        </p>
         <button
           type="button"
           onClick={() => refreshMutation.mutate()}
           disabled={refreshing}
           className={btnSecondary}
         >
-          {refreshing ? "Actualisation…" : "Rafraîchir les données"}
+          {refreshing ? "Collecte de toutes les sources…" : "Rafraîchir toutes les sources"}
         </button>
       </div>
 
@@ -150,24 +156,16 @@ export default function RadarPage() {
 
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-display text-lg font-semibold text-slate-900">Toutes les tendances actives</h3>
+          <h3 className="font-display text-lg font-semibold text-slate-900">Tendances qui montent fort</h3>
           <span className="text-xs font-medium text-slate-500">
-            {trends.length} carte{trends.length !== 1 ? "s" : ""}
+            {trends.length} carte{trends.length !== 1 ? "s" : ""} · score ≥ {parseNum(filters.minTrendScore) ?? HOT_TREND_MIN}
           </span>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {trends.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500 md:col-span-2">
-              Aucun résultat.
-            </p>
-          ) : (
-            trends.map((t) => <TrendCard key={t.id} trend={t} />)
-          )}
-        </div>
+        <TrendPlatformGroups trends={trends} filterPlatform={filters.platform || undefined} />
       </div>
 
       <div>
-        <h3 className="mb-2 font-display text-sm font-semibold text-slate-900">Signaux bruts</h3>
+        <h3 className="mb-2 font-display text-sm font-semibold text-slate-900">Signaux par plateforme</h3>
         <MediaSignalsPreview items={mediaPreview} />
       </div>
     </div>

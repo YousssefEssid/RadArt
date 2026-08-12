@@ -248,7 +248,7 @@ def get_trends_for_api(
             _row_dict(x)
             for x in conn.execute(
                 """
-                SELECT id, title, url, source, platform, published_at
+                SELECT id, title, url, source, platform, published_at, collected_at
                 FROM media_items WHERE cluster_id = ? ORDER BY id DESC LIMIT 5
                 """,
                 (cid,),
@@ -262,6 +262,21 @@ def get_trends_for_api(
             "SELECT COUNT(DISTINCT source) FROM media_items WHERE cluster_id = ?",
             (cid,),
         ).fetchone()[0]
+        span = conn.execute(
+            """
+            SELECT
+              MIN(COALESCE(NULLIF(published_at, ''), collected_at)) AS first_seen_at,
+              MAX(COALESCE(NULLIF(published_at, ''), collected_at)) AS last_seen_at
+            FROM media_items WHERE cluster_id = ?
+            """,
+            (cid,),
+        ).fetchone()
+        first_seen_at = span[0] if span else None
+        last_seen_at = span[1] if span else None
+        if not last_seen_at:
+            last_seen_at = row.get("updated_at") or row.get("created_at")
+        if not first_seen_at:
+            first_seen_at = row.get("created_at") or last_seen_at
         kws = []
         try:
             kws = json.loads(row.get("keywords") or "[]")
@@ -277,6 +292,9 @@ def get_trends_for_api(
             "risk_score": round(float(row.get("risk_score") or 0), 1),
             "source_count": int(srcs),
             "item_count": int(cnt),
+            "first_seen_at": first_seen_at,
+            "last_seen_at": last_seen_at,
+            "updated_at": row.get("updated_at"),
             "latest_items": items,
         }
         if not _matches_trend_filters(

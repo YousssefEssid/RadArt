@@ -1,4 +1,5 @@
 import type { Trend } from "@/shared/api";
+import { formatRelativeFr, freshnessFor, parseIsoDate } from "@/shared/lib/timeAgo";
 
 type Props = {
   trends: Trend[];
@@ -17,10 +18,11 @@ function buildLines(trends: Trend[], sectorLabel?: string): string[] {
     return [`Aucune tendance pour ${scope}.`];
   }
 
-  const items = top.map(
-    (t, i) =>
-      `${i + 1}. ${t.label} — pulse ${Math.round(t.trend_score)}, risque ${Math.round(t.risk_score)}, ${t.item_count} signaux.`
-  );
+  const items = top.map((t, i) => {
+    const when = parseIsoDate(t.last_seen_at) || parseIsoDate(t.updated_at);
+    const whenBit = when ? `, ${formatRelativeFr(when)} (${freshnessFor(when).label})` : "";
+    return `${i + 1}. ${t.label} — pulse ${Math.round(t.trend_score)}, risque ${Math.round(t.risk_score)}, ${t.item_count} signaux${whenBit}.`;
+  });
   return items.slice(0, 5);
 }
 
@@ -28,7 +30,7 @@ export default function BriefDuJourCard({ trends, sectorLabel }: Props) {
   const lines = buildLines(trends, sectorLabel);
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ring-1 ring-slate-900/5 md:border-l-4 md:border-l-radj-lime">
+    <section className="rounded-2xl border border-radj-mist bg-white p-5 shadow-card md:border-l-4 md:border-l-radj-lime">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-display text-base font-semibold text-slate-900">Synthèse</h3>
       </div>

@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { NAV_ITEMS, navIdFromPath, type NavId } from "@/shared/config/nav";
+import { NAV_GROUPS, navIdFromPath, navMetaFromPath, type NavId } from "@/shared/config/nav";
 
 const NAV_LOGO = "/brand-logo.png";
 
@@ -52,6 +53,22 @@ function IconPricing({ className }: { className?: string }) {
   );
 }
 
+function IconMenu({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconClose({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const ICONS: Record<NavId, typeof IconRadar> = {
   radar: IconRadar,
   brief: IconBrief,
@@ -60,53 +77,139 @@ const ICONS: Record<NavId, typeof IconRadar> = {
   pricing: IconPricing,
 };
 
-export default function AppShell() {
+function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const { pathname } = useLocation();
   const active = navIdFromPath(pathname);
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <header className="sticky top-0 z-40 border-b border-radj-lime bg-radj-navy shadow-[0_1px_0_rgba(215,255,123,0.15)]">
-        <div className="mx-auto flex min-h-[4rem] max-w-6xl flex-col items-center gap-3 px-4 py-3 sm:min-h-[4.25rem] sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:py-3.5 lg:px-8">
-          <div className="flex h-10 w-auto max-w-[min(42rem,94vw)] shrink-0 items-center justify-start sm:h-11">
+    <div className="flex h-full min-h-full flex-col">
+      <div className="border-b border-white/15 px-5 py-5">
+        <img
+          src={NAV_LOGO}
+          alt="RAD'ART"
+          className="pointer-events-none block h-9 w-auto max-w-[11rem] object-contain object-left"
+          decoding="async"
+        />
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d7ff7b]">
+          Intelligence média
+        </p>
+      </div>
+
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5" aria-label="Navigation principale">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label}>
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
+              {group.label}
+            </p>
+            <ul className="space-y-1">
+              {group.items.map((item) => {
+                const Icon = ICONS[item.id];
+                const isActive = active === item.id;
+                return (
+                  <li key={item.id}>
+                    <NavLink
+                      to={item.path}
+                      title={item.label}
+                      onClick={onNavigate}
+                      className={`ra-sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+                        isActive ? "is-active" : ""
+                      }`}
+                    >
+                      <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#12142b]" : "text-[#d7ff7b]"}`} />
+                      <span className="min-w-0">
+                        <span className="block font-semibold leading-tight">{item.short}</span>
+                        <span className={`block text-[11px] leading-tight ${isActive ? "text-[#12142b]/70" : "text-white/60"}`}>
+                          {item.hint}
+                        </span>
+                      </span>
+                    </NavLink>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </nav>
+
+      <div className="border-t border-white/15 px-5 py-4">
+        <p className="text-[11px] leading-relaxed text-white/60">Veille continue · signaux publics · briefs clients</p>
+      </div>
+    </div>
+  );
+}
+
+export default function AppShell() {
+  const { pathname } = useLocation();
+  const meta = navMetaFromPath(pathname);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  return (
+    <div className="flex min-h-screen bg-[#f3f1ec] text-slate-700">
+      <aside className="ra-sidebar hidden w-[17.5rem] shrink-0 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:overflow-hidden">
+        <SidebarNav />
+      </aside>
+
+      {mobileOpen ? (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            aria-label="Fermer le menu"
+            onClick={() => setMobileOpen(false)}
+          />
+          <aside className="ra-sidebar relative h-full w-[min(18rem,86vw)] shadow-2xl">
+            <button
+              type="button"
+              className="absolute right-3 top-4 rounded-lg p-2 text-radj-lime hover:bg-white/10"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Fermer"
+            >
+              <IconClose className="h-5 w-5" />
+            </button>
+            <SidebarNav onNavigate={() => setMobileOpen(false)} />
+          </aside>
+        </div>
+      ) : null}
+
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-40 border-b border-[#e8e6e0] bg-[#faf9f6]/90 backdrop-blur-md">
+          <div className="flex items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+            <button
+              type="button"
+              className="rounded-xl border border-[#e8e6e0] bg-white p-2 text-[#1c1c68] shadow-sm lg:hidden"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Ouvrir le menu"
+            >
+              <IconMenu className="h-5 w-5" />
+            </button>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#1c1c68]/60">RadArt</p>
+              <h1 className="truncate font-display text-lg font-semibold text-[#12142b] sm:text-xl">{meta.label}</h1>
+            </div>
             <img
               src={NAV_LOGO}
-              alt="RAD'ART"
-              className="pointer-events-none block h-10 w-auto max-h-10 object-contain object-left sm:h-11 sm:max-h-11"
+              alt=""
+              className="h-8 w-auto object-contain lg:hidden"
               decoding="async"
             />
           </div>
+        </header>
 
-          <nav
-            className="flex w-full min-w-0 items-center justify-center gap-1.5 overflow-x-auto sm:w-auto sm:flex-1 sm:justify-end md:justify-center lg:gap-2"
-            aria-label="Navigation principale"
-          >
-            {NAV_ITEMS.map((item) => {
-              const Icon = ICONS[item.id];
-              const isActive = active === item.id;
-              return (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  title={item.label}
-                  className={`inline-flex min-h-[2.75rem] shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-left transition sm:min-h-[3rem] sm:px-3.5 sm:py-2.5 ${
-                    isActive
-                      ? "border-radj-lime bg-radj-lime text-radj-navy"
-                      : "border-transparent text-radj-lime hover:border-radj-lime/50 hover:bg-white/10"
-                  }`}
-                >
-                  <Icon className={`h-4 w-4 shrink-0 sm:h-5 sm:w-5 ${isActive ? "text-radj-navy" : "text-radj-lime"}`} />
-                  <span className="max-w-[9rem] truncate text-xs font-medium sm:max-w-none sm:text-sm">{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
-        <Outlet />
-      </main>
+        <main className="w-full flex-1 px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

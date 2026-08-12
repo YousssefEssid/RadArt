@@ -25,6 +25,10 @@ def get_last_collection_meta() -> dict[str, Any]:
     return {"source_status": list(_last_source_status), "summary": dict(_last_run_summary)}
 
 
+def is_collection_running() -> bool:
+    return _lock.locked()
+
+
 def collect_and_process() -> None:
     global _last_source_status, _last_run_summary
     if not _lock.acquire(blocking=False):

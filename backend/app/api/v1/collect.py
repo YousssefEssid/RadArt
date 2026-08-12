@@ -6,7 +6,7 @@ from typing import Any
 from fastapi import APIRouter
 
 from app.core.database import get_connection
-from app.jobs.scheduler import collect_and_process, get_last_collection_meta
+from app.jobs.scheduler import collect_and_process, get_last_collection_meta, is_collection_running
 from app.repositories import collection as collection_repo
 from app.repositories import media as media_repo
 
@@ -14,9 +14,11 @@ router = APIRouter(prefix="/collect", tags=["collect"])
 
 
 @router.post("/run")
-def collect_run() -> dict[str, str]:
+def collect_run() -> dict[str, Any]:
+    if is_collection_running():
+        return {"message": "collection already running", "running": True}
     threading.Thread(target=collect_and_process, daemon=True).start()
-    return {"message": "collection started"}
+    return {"message": "collection started", "running": True}
 
 
 @router.get("/status")
@@ -27,6 +29,7 @@ def collect_status() -> dict[str, Any]:
         n_media = media_repo.count_media_items(conn)
         n_trends = collection_repo.count_trend_clusters(conn)
     return {
+        "running": is_collection_running(),
         "last_runs": runs,
         "media_items_count": n_media,
         "trend_clusters_count": n_trends,

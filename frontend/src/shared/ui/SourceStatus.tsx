@@ -11,7 +11,7 @@ export default function SourceStatus({ mediaCount, trendCount, lastRuns, sourceS
   const last = lastRuns[0] as { ended_at?: string; status?: string; items_collected?: number } | undefined;
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ring-1 ring-slate-900/5">
+    <section className="rounded-2xl border border-radj-mist bg-white p-5 shadow-card">
       <h3 className="font-display text-sm font-semibold text-slate-900">Signal status</h3>
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div>

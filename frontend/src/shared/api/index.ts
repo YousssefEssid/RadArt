@@ -53,7 +53,18 @@ export type Trend = {
   risk_score: number;
   source_count: number;
   item_count: number;
-  latest_items: { id: number; title: string; url: string | null; source: string; platform: string }[];
+  first_seen_at?: string | null;
+  last_seen_at?: string | null;
+  updated_at?: string | null;
+  latest_items: {
+    id: number;
+    title: string;
+    url: string | null;
+    source: string;
+    platform: string;
+    published_at?: string | null;
+    collected_at?: string | null;
+  }[];
 };
 
 export type TrendFilters = {
@@ -88,6 +99,8 @@ export type MediaItem = {
   category?: string | null;
   engagement?: number;
   cluster_id?: number | null;
+  published_at?: string | null;
+  collected_at?: string | null;
 };
 
 export type MediaFilters = {
@@ -95,6 +108,8 @@ export type MediaFilters = {
   category?: string;
   platform?: string;
   q?: string;
+  min_engagement?: number;
+  per_platform?: number;
 };
 
 function qsMedia(f?: MediaFilters): string {
@@ -103,12 +118,14 @@ function qsMedia(f?: MediaFilters): string {
   if (f?.category) p.set("category", f.category);
   if (f?.platform) p.set("platform", f.platform);
   if (f?.q) p.set("q", f.q);
+  if (f?.min_engagement != null) p.set("min_engagement", String(f.min_engagement));
+  if (f?.per_platform != null) p.set("per_platform", String(f.per_platform));
   const s = p.toString();
   return s ? `?${s}` : "";
 }
 
 export function getMediaItems(filters?: MediaFilters) {
-  const merged: MediaFilters = { limit: 50, ...filters };
+  const merged: MediaFilters = { limit: 80, per_platform: 6, ...filters };
   return j<MediaItem[]>(fetch(`${getApiBase()}/api/media-items${qsMedia(merged)}`));
 }
 
@@ -116,20 +133,52 @@ export function getMetaFilters() {
   return j<{ categories: string[]; platforms: string[] }>(fetch(`${getApiBase()}/api/meta/filters`));
 }
 
+export type CollectionStatus = {
+  running?: boolean;
+  last_runs: Record<string, unknown>[];
+  media_items_count: number;
+  trend_clusters_count: number;
+  source_status: { source: string; status: string; detail: string }[];
+  last_summary: Record<string, unknown>;
+};
+
 export function getCollectionStatus() {
-  return j<{
-    last_runs: Record<string, unknown>[];
-    media_items_count: number;
-    trend_clusters_count: number;
-    source_status: { source: string; status: string; detail: string }[];
-    last_summary: Record<string, unknown>;
-  }>(fetch(`${getApiBase()}/api/collect/status`));
+  return j<CollectionStatus>(fetch(`${getApiBase()}/api/collect/status`));
 }
 
 export function runCollection() {
-  return j<{ message: string }>(
+  return j<{ message: string; running?: boolean }>(
     fetch(`${getApiBase()}/api/collect/run`, { method: "POST" })
   );
+}
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Start a full collection (all sources) and wait until it finishes. */
+export async function refreshAllIntel(timeoutMs = 180_000): Promise<CollectionStatus> {
+  const before = await getCollectionStatus();
+  const prevStarted = String((before.last_runs[0] as { started_at?: string } | undefined)?.started_at || "");
+  await runCollection();
+
+  const deadline = Date.now() + timeoutMs;
+  let sawRunning = Boolean(before.running);
+  let last = before;
+
+  while (Date.now() < deadline) {
+    await sleep(1500);
+    last = await getCollectionStatus();
+    if (last.running) {
+      sawRunning = true;
+      continue;
+    }
+    const started = String((last.last_runs[0] as { started_at?: string } | undefined)?.started_at || "");
+    const ended = (last.last_runs[0] as { ended_at?: string } | undefined)?.ended_at;
+    if (sawRunning && !last.running) return last;
+    if (ended && started && started !== prevStarted) return last;
+  }
+  return last;
 }
 
 export type BriefAnalyzePayload = { client_name?: string; raw_brief: string };

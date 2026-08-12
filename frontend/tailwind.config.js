@@ -1,13 +1,11 @@
 /** @type {import('tailwindcss').Config} */
-/** Charte radj: lime #D7FF7B, navy #1C1C68, blanc #FFFFFF, noir #000000 — typos cible TS Deniz + 29LT Adir */
+/** Charte RadArt: navy + lime, canvas papier (Pinterest), sidebar ink (Meltwater / Sprinklr). */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       fontFamily: {
-        // Corps: proche 29LT Adir (géométrique lisible) — remplacer par fichiers 29LT si licence
         sans: ["DM Sans", "system-ui", "sans-serif"],
-        // Titres / logo: proche TS Deniz — remplacer par fichiers TypeType si licence
         display: ["Syne", "system-ui", "sans-serif"],
       },
       colors: {
@@ -16,7 +14,14 @@ export default {
           lime: "#D7FF7B",
           white: "#FFFFFF",
           black: "#000000",
+          ink: "#12142B",
+          canvas: "#F3F1EC",
+          mist: "#E8E6E0",
+          sand: "#FAF9F6",
         },
+      },
+      boxShadow: {
+        card: "0 1px 2px rgba(18, 20, 43, 0.04), 0 8px 24px -12px rgba(18, 20, 43, 0.12)",
       },
     },
   },

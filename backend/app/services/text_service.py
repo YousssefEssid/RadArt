@@ -7,11 +7,12 @@ from app.services.social_signals import extract_social_signals, merge_keywords_w
 CATEGORY_KEYWORDS = {
     "politics": ["président", "gouvernement", "ministre", "élection", "parlement", "politique"],
     "economy": ["inflation", "prix", "économie", "marché", "banque", "emploi", "croissance"],
-    "sport": ["football", "match", "club", "stade", "derby", "équipe"],
+    "sport": ["football", "match", "club", "stade", "derby", "équipe", "caf", "can"],
     "weather": ["météo", "pluie", "chaleur", "canicule", "température"],
     "youth": ["étudiant", "examen", "université", "bac", "campus"],
     "retail": ["promotion", "achat", "prix", "magasin", "supermarché", "discount"],
-    "culture": ["festival", "musique", "cinéma", "artiste", "concert"],
+    "viral": ["meme", "mème", "viral", "tiktok", "challenge", "fyp", "audio", "sound", "trend"],
+    "culture": ["festival", "musique", "cinéma", "artiste", "concert", "chanson", "rap", "clip", "album", "spotify"],
 }
 
 POSITIVE = ["gain", "success", "croissance", "record", "victoire", "bonne", "positive"]

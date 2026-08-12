@@ -2,9 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Charte radj — typos web: Syne (titres) + DM Sans (corps). Remplacer par TS Deniz / 29LT Adir si fichiers fournis. */
+/* Charte RadArt — Syne (titres) + DM Sans (corps). */
 body {
   margin: 0;
+  background: #f3f1ec;
+}
+
+.ra-sidebar {
+  background: #12142b;
+  color: #f4f1ea;
+}
+
+.ra-sidebar-link {
+  color: #f4f1ea;
+}
+.ra-sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+.ra-sidebar-link.is-active {
+  background: #d7ff7b;
+  color: #12142b;
 }
 
 ::selection {
@@ -12,3 +30,14 @@ body {
   color: #d7ff7b;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cfcbc3;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8b3aa;
+}
