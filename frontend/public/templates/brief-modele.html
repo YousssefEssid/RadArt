@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brief créatif — modèle à compléter</title>
+    <style>
+      :root {
+        --navy: #1c1c68;
+        --lime: #d7ff7b;
+        --bg: #0f0f2a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: 1.5rem;
+        background: var(--bg);
+        color: #f4f4f5;
+        line-height: 1.45;
+      }
+      h1 {
+        font-size: 1.25rem;
+        color: var(--lime);
+        margin: 0 0 0.5rem;
+      }
+      .intro {
+        font-size: 0.9rem;
+        color: rgba(215, 255, 123, 0.85);
+        margin-bottom: 1.5rem;
+      }
+      section {
+        margin-bottom: 1.25rem;
+      }
+      h2 {
+        font-size: 1rem;
+        margin: 0 0 0.35rem;
+        color: #fff;
+      }
+      .hint {
+        font-size: 0.8rem;
+        color: rgba(215, 255, 123, 0.75);
+        margin: 0 0 0.4rem;
+      }
+      textarea {
+        width: 100%;
+        min-height: 4.5rem;
+        padding: 0.5rem 0.65rem;
+        border: 1px solid rgba(215, 255, 123, 0.35);
+        border-radius: 0.5rem;
+        background: rgba(28, 28, 104, 0.5);
+        color: #fff;
+        font: inherit;
+        resize: vertical;
+      }
+      textarea::placeholder {
+        color: rgba(255, 255, 255, 0.35);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+      }
+      button {
+        cursor: pointer;
+        border: 1px solid var(--lime);
+        background: var(--lime);
+        color: var(--navy);
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--lime);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Brief créatif — modèle à compléter</h1>
+    <p class="intro">
+      Chaque bloc indique <strong>uniquement</strong> le titre de rubrique et la consigne (ce que vous devez y mettre). Saisissez
+      votre contenu dans la zone de texte — pas d’exemple rédigé.
+    </p>
+
+    <form id="brief">
+      <section>
+        <h2>Client et marque</h2>
+        <p class="hint">À remplir : nom du client, nom de la marque, périmètre (pays, BU…).</p>
+        <textarea name="c1" placeholder="Votre texte…" aria-label="Client et marque"></textarea>
+      </section>
+      <section>
+        <h2>Contexte et objectifs</h2>
+        <p class="hint">À remplir : situation actuelle, enjeu business, objectifs mesurables de la campagne.</p>
+        <textarea name="c2" placeholder="Votre texte…" aria-label="Contexte et objectifs"></textarea>
+      </section>
+      <section>
+        <h2>Cible et insights</h2>
+        <p class="hint">À remplir : qui viser (segments), comportements, insights ou vérités consommateur.</p>
+        <textarea name="c3" placeholder="Votre texte…" aria-label="Cible et insights"></textarea>
+      </section>
+      <section>
+        <h2>Message et territoire créatif</h2>
+        <p class="hint">À remplir : promesse ou message clé, tonalité, univers créatif souhaité (humour, émotion…).</p>
+        <textarea name="c4" placeholder="Votre texte…" aria-label="Message et territoire créatif"></textarea>
+      </section>
+      <section>
+        <h2>Canaux et livrables</h2>
+        <p class="hint">À remplir : médias prioritaires (TV, digital, social…), formats et livrables attendus.</p>
+        <textarea name="c5" placeholder="Votre texte…" aria-label="Canaux et livrables"></textarea>
+      </section>
+      <section>
+        <h2>Budget et calendrier</h2>
+        <p class="hint">À remplir : budget indicatif ou fourchette, dates clés, deadline de réponse.</p>
+        <textarea name="c6" placeholder="Votre texte…" aria-label="Budget et calendrier"></textarea>
+      </section>
+      <section>
+        <h2>Contraintes</h2>
+        <p class="hint">À remplir : obligations légales, sujets à éviter, concurrents, autres contraintes.</p>
+        <textarea name="c7" placeholder="Votre texte…" aria-label="Contraintes"></textarea>
+      </section>
+    </form>
+
+    <div class="actions">
+      <button type="button" id="copy">Copier tout le brief</button>
+      <button type="button" id="downloadTxt" class="secondary">Télécharger en .txt</button>
+    </div>
+
+    <script>
+      const headings = [
+        "Client et marque",
+        "Contexte et objectifs",
+        "Cible et insights",
+        "Message et territoire créatif",
+        "Canaux et livrables",
+        "Budget et calendrier",
+        "Contraintes",
+      ];
+      const areas = () => document.querySelectorAll("#brief textarea");
+      function buildText() {
+        const parts = [];
+        areas().forEach((el, i) => {
+          const t = (el.value || "").trim();
+          if (t) {
+            parts.push("## " + headings[i] + "\n" + t);
+          }
+        });
+        return parts.join("\n\n");
+      }
+      document.getElementById("copy").addEventListener("click", async () => {
+        const text = buildText();
+        try {
+          await navigator.clipboard.writeText(text);
+          alert("Brief copié. Collez-le dans RadArt (zone « Texte du brief »).");
+        } catch {
+          prompt("Copiez ce texte :", text);
+        }
+      });
+      document.getElementById("downloadTxt").addEventListener("click", () => {
+        const blob = new Blob([buildText()], { type: "text/plain;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "brief-rempli.txt";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+    </script>
+  </body>
+</html>
