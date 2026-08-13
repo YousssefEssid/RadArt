@@ -24,6 +24,16 @@ function IconBrief({ className }: { className?: string }) {
   );
 }
 
+function IconBrand({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5" strokeLinecap="round" />
+      <path d="M16.5 6.5l1.2-2.2M18.8 9.2l2.2-.2M7.5 6.5L6.3 4.3M5.2 9.2l-2.2-.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function IconCompetitors({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
@@ -71,6 +81,7 @@ function IconClose({ className }: { className?: string }) {
 
 const ICONS: Record<NavId, typeof IconRadar> = {
   radar: IconRadar,
+  brand: IconBrand,
   brief: IconBrief,
   competitors: IconCompetitors,
   sources: IconSources,
@@ -91,7 +102,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           decoding="async"
         />
         <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d7ff7b]">
-          Intelligence média
+          Intelligence culturelle
         </p>
       </div>
 
@@ -132,7 +143,9 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="border-t border-white/15 px-5 py-4">
-        <p className="text-[11px] leading-relaxed text-white/60">Veille continue · signaux publics · briefs clients</p>
+        <p className="text-[11px] leading-relaxed text-white/60">
+          Ce qui monte · ce qui compte · quoi faire
+        </p>
       </div>
     </div>
   );

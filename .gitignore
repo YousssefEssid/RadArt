@@ -21,6 +21,9 @@ dist/
 *.db
 **/generated_media/
 
+# Cloned upstream repos / models (integrate selectively)
+vendor/
+
 # IDE / OS
 .idea/
 .vscode/

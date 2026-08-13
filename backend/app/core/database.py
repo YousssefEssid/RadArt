@@ -83,6 +83,28 @@ CREATE TABLE IF NOT EXISTS collection_runs (
   items_collected INTEGER DEFAULT 0,
   errors TEXT
 );
+
+CREATE TABLE IF NOT EXISTS brand_profiles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  brand_name TEXT NOT NULL,
+  industry TEXT,
+  country TEXT DEFAULT 'Tunisia',
+  audience TEXT,
+  personality TEXT,
+  languages_json TEXT,
+  competitors_json TEXT,
+  channels_json TEXT,
+  objectives_json TEXT,
+  forbidden_topics_json TEXT,
+  tone TEXT,
+  previous_campaigns TEXT,
+  brand_guidelines_text TEXT,
+  products TEXT,
+  budget_level TEXT,
+  is_active INTEGER DEFAULT 1,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
 """
 
 
@@ -94,6 +116,32 @@ def _migrate(conn: sqlite3.Connection) -> None:
     cols = {row[1] for row in conn.execute("PRAGMA table_info(client_briefs)").fetchall()}
     if "competitors_json" not in cols:
         conn.execute("ALTER TABLE client_briefs ADD COLUMN competitors_json TEXT")
+    # brand_profiles created via SCHEMA; ensure table exists on older DBs
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS brand_profiles (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          brand_name TEXT NOT NULL,
+          industry TEXT,
+          country TEXT DEFAULT 'Tunisia',
+          audience TEXT,
+          personality TEXT,
+          languages_json TEXT,
+          competitors_json TEXT,
+          channels_json TEXT,
+          objectives_json TEXT,
+          forbidden_topics_json TEXT,
+          tone TEXT,
+          previous_campaigns TEXT,
+          brand_guidelines_text TEXT,
+          products TEXT,
+          budget_level TEXT,
+          is_active INTEGER DEFAULT 1,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+        """
+    )
 
 
 def init_db() -> None:

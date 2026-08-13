@@ -1,15 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import BriefDuJourCard from "@/features/brief/components/BriefDuJourCard";
+import MorningRadarBoard from "@/features/radar/components/MorningRadarBoard";
 import {
   getCollectionStatus,
   getHealth,
   getMediaItems,
   getMetaFilters,
+  getMorningRadar,
   getTrends,
   refreshAllIntel,
 } from "@/shared/api";
-import DashboardKpiStrip from "@/shared/ui/DashboardKpiStrip";
 import FilterBar, { type DashboardFilters } from "@/shared/ui/FilterBar";
 import MediaSignalsPreview from "@/shared/ui/MediaSignalsPreview";
 import TrendPlatformGroups from "@/shared/ui/TrendPlatformGroups";
@@ -37,6 +37,7 @@ const btnSecondary =
 export default function RadarPage() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<DashboardFilters>(DEFAULT_FILTERS);
+  const [showExplorer, setShowExplorer] = useState(false);
 
   const trendApiFilters = useMemo(
     () => ({
@@ -59,21 +60,30 @@ export default function RadarPage() {
     [filters]
   );
 
+  const morningQuery = useQuery({
+    queryKey: ["radar", "morning"],
+    queryFn: getMorningRadar,
+    refetchInterval: 25_000,
+  });
+
   const metaQuery = useQuery({
     queryKey: ["meta", "filters"],
     queryFn: getMetaFilters,
+    enabled: showExplorer,
   });
 
   const trendsQuery = useQuery({
     queryKey: ["trends", trendApiFilters],
     queryFn: () => getTrends(trendApiFilters),
-    refetchInterval: 25_000,
+    refetchInterval: showExplorer ? 25_000 : false,
+    enabled: showExplorer,
   });
 
   const mediaQuery = useQuery({
     queryKey: ["media", mediaApiFilters],
     queryFn: () => getMediaItems(mediaApiFilters),
-    refetchInterval: 25_000,
+    refetchInterval: showExplorer ? 25_000 : false,
+    enabled: showExplorer,
   });
 
   const healthQuery = useQuery({
@@ -104,10 +114,12 @@ export default function RadarPage() {
   }, [allTrends, filters.minTrendScore]);
   const mediaPreview = mediaQuery.data ?? [];
   const meta = metaQuery.data ?? { categories: [], platforms: [] };
-  const collectStatus = collectQuery.data ?? null;
   const health =
     healthQuery.data != null ? `${healthQuery.data.scheduler} · ${healthQuery.data.db}` : "…";
   const refreshing = refreshMutation.isPending;
+  const lastRun = collectQuery.data?.last_runs?.[0] as
+    | { ended_at?: string; items_collected?: number }
+    | undefined;
 
   return (
     <div className="space-y-6">
@@ -125,7 +137,11 @@ export default function RadarPage() {
 
       <div className="hidden md:flex md:flex-wrap md:items-end md:justify-between md:gap-4">
         <p className="max-w-xl text-sm text-slate-600">
-          Tendances détectées sur les signaux collectés — filtrez par secteur, plateforme ou score.
+          Pas un catalogue de tendances — des réponses : ce qui monte, ce qui compte pour la marque,
+          et quoi faire maintenant.
+          {lastRun?.ended_at
+            ? ` Dernière collecte : ${lastRun.items_collected ?? "?"} signaux.`
+            : ""}
         </p>
         <button
           type="button"
@@ -137,37 +153,56 @@ export default function RadarPage() {
         </button>
       </div>
 
-      <BriefDuJourCard trends={trends} sectorLabel={filters.category || undefined} />
+      {morningQuery.isError ? (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          Impossible de charger le Morning Radar. Vérifiez que l’API tourne.
+        </p>
+      ) : morningQuery.data ? (
+        <MorningRadarBoard report={morningQuery.data} loading={morningQuery.isFetching && !morningQuery.data} />
+      ) : (
+        <p className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500">
+          Chargement du Morning Radar…
+        </p>
+      )}
 
-      {collectStatus ? (
-        <DashboardKpiStrip
-          trends={trends}
-          mediaItemsTotal={collectStatus.media_items_count}
-          trendClustersTotal={collectStatus.trend_clusters_count}
-          sourcesOkCount={collectStatus.source_status.filter((s) => s.status === "ok").length}
-          sourcesTotalCount={collectStatus.source_status.length}
-          lastItemsCollected={
-            (collectStatus.last_runs[0] as { items_collected?: number } | undefined)?.items_collected
-          }
-        />
-      ) : null}
+      <div className="border-t border-slate-200 pt-4">
+        <button
+          type="button"
+          onClick={() => setShowExplorer((v) => !v)}
+          className="text-sm font-semibold text-radj-navy underline-offset-2 hover:underline"
+        >
+          {showExplorer ? "Masquer l’explorateur de signaux" : "Explorateur de signaux (vue technique)"}
+        </button>
+      </div>
 
-      <FilterBar categories={meta.categories} platforms={meta.platforms} value={filters} onChange={setFilters} />
-
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-display text-lg font-semibold text-slate-900">Tendances qui montent fort</h3>
-          <span className="text-xs font-medium text-slate-500">
-            {trends.length} carte{trends.length !== 1 ? "s" : ""} · score ≥ {parseNum(filters.minTrendScore) ?? HOT_TREND_MIN}
-          </span>
+      {showExplorer ? (
+        <div className="space-y-4">
+          <FilterBar
+            categories={meta.categories}
+            platforms={meta.platforms}
+            value={filters}
+            onChange={setFilters}
+          />
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-display text-lg font-semibold text-slate-900">
+                Tendances (vue plateforme)
+              </h3>
+              <span className="text-xs font-medium text-slate-500">
+                {trends.length} carte{trends.length !== 1 ? "s" : ""} · score ≥{" "}
+                {parseNum(filters.minTrendScore) ?? HOT_TREND_MIN}
+              </span>
+            </div>
+            <TrendPlatformGroups trends={trends} filterPlatform={filters.platform || undefined} />
+          </div>
+          <div>
+            <h3 className="mb-2 font-display text-sm font-semibold text-slate-900">
+              Signaux par plateforme
+            </h3>
+            <MediaSignalsPreview items={mediaPreview} />
+          </div>
         </div>
-        <TrendPlatformGroups trends={trends} filterPlatform={filters.platform || undefined} />
-      </div>
-
-      <div>
-        <h3 className="mb-2 font-display text-sm font-semibold text-slate-900">Signaux par plateforme</h3>
-        <MediaSignalsPreview items={mediaPreview} />
-      </div>
+      ) : null}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-export type NavId = "radar" | "brief" | "competitors" | "sources" | "pricing";
+export type NavId = "radar" | "brand" | "brief" | "competitors" | "sources" | "pricing";
 
 export type NavItem = {
   id: NavId;
@@ -12,9 +12,10 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Veille",
     items: [
-      { id: "radar", label: "Radar & signaux", short: "Radar", path: "/dashboard", hint: "Tendances en cours" },
+      { id: "radar", label: "Morning Radar", short: "Radar", path: "/dashboard", hint: "Ce qui a changé" },
+      { id: "brand", label: "Brand Brain", short: "Marque", path: "/marque", hint: "Brand DNA" },
       { id: "brief", label: "Brief client", short: "Brief", path: "/brief", hint: "Matcher un brief" },
-      { id: "competitors", label: "Concurrents", short: "Concurrents", path: "/concurrents", hint: "Veille concurrentielle" },
+      { id: "competitors", label: "Competitor War Room", short: "War Room", path: "/concurrents", hint: "Gaps & thèmes" },
       { id: "sources", label: "Sources & collecte", short: "Sources", path: "/sources", hint: "Flux & statut" },
     ],
   },
@@ -27,6 +28,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
 export const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 
 export function navIdFromPath(pathname: string): NavId {
+  if (pathname.startsWith("/marque") || pathname.startsWith("/brand")) return "brand";
   if (pathname.startsWith("/brief")) return "brief";
   if (pathname.startsWith("/concurrents")) return "competitors";
   if (pathname.startsWith("/sources")) return "sources";

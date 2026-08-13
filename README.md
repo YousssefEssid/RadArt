@@ -1,71 +1,145 @@
 # RadArt
 
-AI-powered media intelligence MVP: collect public signals (RSS, optional APIs, mock social), cluster trends in SQLite, match a client brief, and surface campaign recommendations.
+**RadArt** is **AI Cultural & Marketing Intelligence for Tunisia and MENA**.
 
-## Architecture
+It detects what is gaining attention, understands whether it matters for a brand, and turns that into campaigns teams can execute — between social listening, trend intel, competitive watch, and an AI strategist.
 
-| Layer | Stack |
-|-------|--------|
-| Backend | FastAPI app package (`backend/app`): routers → repositories → services → collectors |
-| Frontend | React + Vite + TypeScript, React Router, TanStack Query, feature folders |
-| Data | SQLite today (`backend/data/radart.db`); path configurable for a later Postgres move |
+> What is happening right now? What matters for my brand? What should we do, and why?
+
+**Advantage:** local understanding + speed + actionable recommendations (Derja / Arabizi / Arabic / French / English) — not “more dashboards” or raw source volume.
+
+Technically the engine still runs: collect → cluster → score → match brief → recommend. Commercially the product leads with **workflows**, starting with **Morning Radar**.
+
+---
+
+## Who it is for
+
+| Audience | How they use RadArt |
+|----------|---------------------|
+| **Communication / digital agencies** | Morning answer for each client; brief → executable angles |
+| **Brand / social managers** | Spot songs, memes, news spikes before they cool; reputation alerts |
+| **Strategy / creative teams** | Why it matters + what to do (formats, urgency, local angles) |
+
+RadArt is **not** a generic news reader or “top trends” wall.
+
+---
+
+## What the platform does
+
+### 1. Morning Radar (`/dashboard`)
+- Answers: **what changed since yesterday?**
+- Classifies signals: Emerging · Growing · Competitor move · Conversation shift · Reputation · Brand opportunity · Fading
+- Each trend becomes an **Opportunity Card**: **RAD Score**, momentum, Tunisia relevance, audience, lifecycle, sources, why it’s growing, Brand Fit, Recommended move
+- Optional technical explorer for platform filters / raw trend cards
+
+### 1b. Brand Brain (`/marque`)
+- Build **Brand DNA** (industry, audience, personality, languages, competitors, channels, objectives, forbidden topics, tone, guidelines, products, budget)
+- Every Opportunity Card is scored through that DNA — including **don’t chase** (e.g. 23% fit)
+
+### RAD Score (product identity)
+- `RAD = Relevance × Acceleration × Differentiation`
+- Combines momentum, freshness, Tunisia relevance, audience overlap, brand fit, source diversity, competitive saturation, − brand safety risk
+- Always explained (why), never a naked number
+
+### Should we jump on this?
+- On each Opportunity Card: **Analyse for my brand** → YES / CAUTION / NO with fit scores
+- **Generate Campaign** → big idea, insight, concept, key message, TikTok/Reel concepts, captions, visual, influencers, hashtags, timing, KPIs
+- Bridge: social listening → marketing execution
+
+### 2. Brief client (`/brief`)
+- Paste a brief or upload `.pptx` / `.docx` / `.pdf` / `.txt`
+- Parses sector, target, tone, constraints, competitors
+- Matches live trend clusters → **campaign recommendations** (angles, formats, influencer type, urgency)
+
+### 3. Competitor War Room (`/concurrents`)
+- Per competitor: talking points, campaigns gaining traction, themes owned, audience, formats, silences, early trend adopts
+- **Theme board** + **Opportunity gaps** (e.g. A owns price, B owns premium → Convenience positioning)
+- Sources: Brand Brain competitors (live) or telecom TN demo
+- **Competitive alerts** on Morning Radar: competitor content spikes + acceleration + differentiated response (not louder copy)
+
+### 4. Sources & collecte (`/sources`)
+- Status of every collector (ok / error / skipped)
+- Trigger a **full collection** of all intel sources
+
+### 5. Tarifs / Contact (`/tarifs`, `/contact`)
+- Product packaging (Start / Pro / Agency) and contact for custom needs
+
+---
+
+## Product pipeline
+
+```
+Public sources          SQLite              Intelligence
+─────────────────       ──────────────      ─────────────────────────
+RSS / Google News  ──►  media_items    ──►  trend clusters (scores)
+Reddit / Apple Music    trend_clusters      Morning Radar buckets
+YouTube / GDELT         client_briefs       brief matching
+SerpApi (optional)      recommendations     campaign cards
+mock social demos
+```
+
+1. **Collect** curated public feeds (no unofficial Meta/TikTok scrape)
+2. **Enrich** text (keywords, hashtags, category, sentiment)
+3. **Cluster** similar items into trends and score them
+4. **Morning Radar** — classify into actionable workflow buckets
+5. **Match** trends to a client brief → **recommend** safe / bold / local angles
+
+---
+
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Backend | FastAPI (`backend/app`): routers → repositories → services → collectors |
+| Frontend | React + Vite + TypeScript, React Router, TanStack Query |
+| Data | SQLite (`backend/data/radart.db`) — path configurable for Postgres later |
+| Jobs | In-process scheduler (default every 15 minutes) |
 
 ```
 backend/app/
-  api/v1/          # HTTP routers
+  api/v1/          # HTTP routes (incl. /radar/morning)
   repositories/    # SQL access
-  services/        # domain logic
-  collectors/      # external sources
-  jobs/            # scheduler / collection pipeline
+  services/        # trends, morning radar, briefs, recommendations, LLM
+  collectors/      # RSS, Reddit, Apple Music, Google News, …
+  jobs/            # collection + clustering schedule
   core/            # config, database
 frontend/src/
   app/             # providers + router
-  features/        # radar, brief, competitors, sources, pricing, contact
-  shared/          # api client, ui, lib, config
+  features/        # radar (Morning Radar), brief, competitors, sources, pricing, contact
+  shared/          # api, ui, lib, config
 ```
+
+---
 
 ## Prerequisites
 
 - Python 3.11+
-- Node.js 18+ (for the frontend)
+- Node.js 18+
 
-## Backend
+## Run locally
+
+### Backend
 
 ```bash
 cd backend
 python -m venv .venv
 ```
 
-Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-macOS/Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-Then:
+Windows: `.venv\Scripts\activate`  
+macOS/Linux: `source .venv/bin/activate`
 
 ```bash
 pip install -r ../requirements.txt
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-API: `http://localhost:8000` · OpenAPI: `http://localhost:8000/docs`
+- API: http://localhost:8000  
+- Docs: http://localhost:8000/docs  
+- Smoke test: `pytest app/tests -q`
 
-Smoke test:
+On startup RadArt creates the SQLite DB, runs a first collection in the background, then collects again every 15 minutes (configurable).
 
-```bash
-pytest app/tests -q
-```
-
-On startup the app initializes SQLite at `backend/data/radart.db`, runs a first collection in the background, and schedules collection every 15 minutes (configurable).
-
-## Frontend
+### Frontend
 
 ```bash
 cd frontend
@@ -73,56 +147,59 @@ npm install
 npm run dev
 ```
 
-App: `http://localhost:5173` (deep links: `/dashboard`, `/brief`, `/concurrents`, `/sources`, `/tarifs`, `/contact`)
+App: http://localhost:5173  
 
-Optional: point the UI at another API host:
+Routes: `/dashboard` · `/brief` · `/concurrents` · `/sources` · `/tarifs` · `/contact`
+
+Optional API host:
 
 ```bash
 set VITE_API_BASE=http://localhost:8000
 npm run dev
 ```
 
+---
+
 ## Environment (optional)
 
-Copy `.env.example` to `.env` at the project root (`RadArt/.env`).
+Copy `.env.example` to `.env` at the project root.
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENAI_API_KEY` | Optional LLM for richer brief parsing and copy |
-| `GEMINI_API_KEY` | Optional LLM (used if OpenAI not set) |
-| `YOUTUBE_API_KEY` | Optional YouTube search results |
+| `OPENAI_API_KEY` | Richer brief parsing / copy (optional) |
+| `GEMINI_API_KEY` | LLM fallback if OpenAI is unset |
+| `YOUTUBE_API_KEY` | YouTube search results |
+| `SERPAPI_API_KEY` | Google Trends via SerpApi |
 | `COLLECTION_INTERVAL_MINUTES` | Default `15` |
 | `DATABASE_PATH` | Default `backend/data/radart.db` |
+| `CORS_ORIGINS` | Default `*` |
 
-The demo runs with **no API keys** (RSS + Reddit + iTunes charts + mock social + rule-based outputs).
+The demo runs **without API keys** (RSS, Reddit RSS, Apple Music charts, Google News RSS, mock social, rule-based outputs).
 
-### Extra collectors (public, no login)
+---
 
-| Source | What it captures |
-|--------|------------------|
-| RSS (TN + Afrique + Billboard/NME/Variety/Verge/Know Your Meme) | News, music, entertainment |
-| Google News RSS (TN + FR + US queries) | Viral / tiktok / meme / songs headlines |
-| Reddit hot JSON (`r/Tunisia`, memes, videos, Music, soccer, …) | What people hop on right now |
-| iTunes charts (TN / FR / US songs + TN clips) | Songs & music videos going mainstream |
-| YouTube Data API | Optional, if `YOUTUBE_API_KEY` is set |
-| SerpApi Google Trends | Optional, if `SERPAPI_API_KEY` is set |
+## Data sources
 
-Still **no unofficial Meta/TikTok scrape** (ToS). Social-style captions for demo live in `backend/data/mock_social_trends.json`.
+| Source | What it captures | Key? |
+|--------|------------------|------|
+| RSS (TN press, Afrique, Billboard, NME, Variety, Verge, Know Your Meme, …) | News, music, entertainment | No |
+| Google News RSS (TN / FR / US queries) | Viral, meme, song, sport headlines | No |
+| Reddit RSS (`r/Tunisia` + viral mix) | What people hop on | No |
+| Apple Music charts (TN / FR / US) | Songs going mainstream | No |
+| GDELT | Global news mentions | No |
+| Mock social JSON | TikTok / IG / FB-style captions for demos | No |
+| YouTube Data API | Video search | Optional |
+| SerpApi Google Trends | Related queries / topics | Optional |
 
-## Legal / collection note
+### Legal note
 
-Collectors use the `RadArtBot/1.0` user agent, timeouts, and curated sources only. Some feeds or sites may fail on certain networks (SSL, rate limits); mock data and demo items keep the UI usable.
+- Collectors use the `RadArtBot/1.0` user agent, timeouts, and curated public URLs only.
+- RadArt does **not** scrape private Meta / TikTok feeds or bypass logins (ToS). Official APIs or your own licensed content would be required for live social.
+- Hashtags, @mentions, and caption-like text **are** parsed when present in ingested content.
+- Google Trends charts are not an official REST API; SerpApi is the optional supported path.
 
-### Facebook, Instagram, TikTok
+---
 
-RadArt does **not** scrape private feeds or bypass logins on Meta/TikTok (that violates their Terms of Service and is fragile legally). For real data you would use **official APIs** (e.g. Meta Graph API with app review, TikTok for Developers / research programs) or **your own** exported or licensed content.
+## License / status
 
-The app **does** parse **trend signals** from any caption-like text you ingest: **hashtags**, **@mentions**, **quoted phrases**, and **multi-word capitalized names** (e.g. public figures), then folds them into keywords and clustering. The file `backend/data/mock_social_trends.json` simulates TikTok/Instagram/Facebook-style captions for demos.
-
-### Google Trends
-
-Google does **not** publish an official, API-key **Google Trends** REST service like YouTube Data API. The charts at [trends.google.com](https://trends.google.com) are for humans in the browser. Unofficial Python libraries (e.g. **pytrends**) hit internal endpoints and can break or conflict with Terms of Use — use only if you accept that risk.
-
-RadArt includes **`google_news_rss_collector`**: public **Google News RSS** URLs (`news.google.com/rss/search?...`) for Tunisia-focused queries. That is **not** the same as Trends scores, but it adds timely headlines with **no API key** and feeds the same clustering pipeline.
-
-**SerpApi Google Trends** (optional): set `SERPAPI_API_KEY` from [SerpApi](https://serpapi.com/). The collector calls `engine=google_trends` (`search.json`) and turns **related queries**, **related topics**, and optionally **interest over time** into `media_items` for clustering. Tune `SERPAPI_GOOGLE_TRENDS_MAX_REQUESTS_PER_RUN` to respect your monthly search quota.
+Hackathon / MVP build for agency media intelligence. Extend with auth, Postgres, and a real job queue when you move beyond the demo.

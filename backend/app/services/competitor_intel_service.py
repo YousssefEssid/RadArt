@@ -64,7 +64,7 @@ def resolve_competitor_names(row: dict[str, Any]) -> tuple[list[str], str]:
 def _media_hits(conn: sqlite3.Connection, term: str, limit: int) -> list[dict[str, Any]]:
     like = f"%{term.strip().lower()}%"
     sql = """
-        SELECT id, title, source, platform, category, url, published_at, engagement
+        SELECT id, title, source, platform, category, url, published_at, collected_at, engagement, text
         FROM media_items
         WHERE lower(title) LIKE ? OR (text IS NOT NULL AND lower(text) LIKE ?)
         ORDER BY id DESC
