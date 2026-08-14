@@ -3,6 +3,7 @@ import re
 from typing import Any
 
 from app.services.social_signals import extract_social_signals, merge_keywords_with_signals
+from app.utils.text_clean import clean_display_title, clean_plain_text
 
 CATEGORY_KEYWORDS = {
     "politics": ["président", "gouvernement", "ministre", "élection", "parlement", "politique"],
@@ -73,8 +74,8 @@ def _sentiment(text: str) -> str:
 
 
 def enrich_item(item: dict[str, Any]) -> dict[str, Any]:
-    title = str(item.get("title") or "")
-    body = str(item.get("text") or "")
+    title = clean_display_title(str(item.get("title") or ""), max_len=160)
+    body = clean_plain_text(str(item.get("text") or ""), max_len=4000)
     combined = f"{title} {body}".strip()
     lang = _detect_language(combined)
     signals = extract_social_signals(combined)
@@ -82,6 +83,8 @@ def enrich_item(item: dict[str, Any]) -> dict[str, Any]:
     cat = _category_from_keywords(combined, item.get("category"))
     sent = _sentiment(combined)
     item = dict(item)
+    item["title"] = title or "Untitled"
+    item["text"] = body
     item["language"] = lang
     item["keywords"] = json.dumps(kws, ensure_ascii=False)
     item["entities"] = json.dumps(signals, ensure_ascii=False)

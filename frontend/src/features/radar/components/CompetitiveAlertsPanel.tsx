@@ -86,12 +86,6 @@ export default function CompetitiveAlertsPanel({ report }: Props) {
           <AlertCard key={a.id} alert={a} />
         ))}
       </div>
-      {report.source === "demo_seed" ? (
-        <p className="text-[11px] text-slate-400">
-          Seeded alert while live competitor mentions are thin — refreshes with collection + Brand Brain
-          competitors.
-        </p>
-      ) : null}
     </section>
   );
 }

@@ -8,6 +8,7 @@ import requests
 from app.core.config import settings
 from app.seed_sources import RSS_SOURCES
 from app.utils.safety import request_headers
+from app.utils.text_clean import clean_display_title, clean_plain_text
 from app.utils.time_utils import utc_now_iso
 
 
@@ -58,9 +59,12 @@ def fetch_rss_items() -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
                 raise last_err or RuntimeError("empty feed")
             count = 0
             for entry in parsed.entries[:40]:
-                title = (entry.get("title") or "").strip() or "Untitled"
+                title = clean_display_title((entry.get("title") or "").strip() or "Untitled", max_len=160)
                 link = entry.get("link") or ""
-                summary = (entry.get("summary") or entry.get("description") or "")[:2000]
+                summary = clean_plain_text(
+                    (entry.get("summary") or entry.get("description") or ""),
+                    max_len=2000,
+                )
                 pub = _published(entry)
                 raw = {
                     "feed_url": used_url,

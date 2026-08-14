@@ -20,9 +20,50 @@ from app.services.scoring_service import (
     trend_composite,
 )
 from app.services.social_signals import signals_to_cluster_text
+from app.utils.text_clean import (
+    attractive_cluster_label,
+    clean_display_title,
+    clean_plain_text,
+    is_junk_keyword,
+)
 from app.utils.time_utils import parse_iso
 
 WINDOW_HOURS = 72
+
+
+def sanitize_stored_media(conn: sqlite3.Connection, *, limit: int = 5000) -> int:
+    """One-shot / on-cluster cleanup of HTML junk already in SQLite."""
+    rows = conn.execute(
+        "SELECT id, title, text, keywords, entities FROM media_items ORDER BY id DESC LIMIT ?",
+        (limit,),
+    ).fetchall()
+    n = 0
+    for r in rows:
+        title = clean_display_title(r["title"] or "", max_len=160)
+        text = clean_plain_text(r["text"] or "", max_len=4000)
+        kws_raw = []
+        try:
+            kws_raw = json.loads(r["keywords"] or "[]")
+        except json.JSONDecodeError:
+            kws_raw = []
+        kws = [k for k in kws_raw if not is_junk_keyword(str(k))]
+        ents = r["entities"]
+        try:
+            sig = json.loads(ents or "{}")
+            if isinstance(sig, dict):
+                for key in ("hashtags", "mentions", "quoted_phrases", "title_case_phrases"):
+                    if key in sig and isinstance(sig[key], list):
+                        sig[key] = [x for x in sig[key] if not is_junk_keyword(str(x))]
+                ents = json.dumps(sig, ensure_ascii=False)
+        except json.JSONDecodeError:
+            pass
+        if title != (r["title"] or "") or text != (r["text"] or ""):
+            n += 1
+        conn.execute(
+            "UPDATE media_items SET title = ?, text = ?, keywords = ?, entities = ? WHERE id = ?",
+            (title or "Untitled", text, json.dumps(kws, ensure_ascii=False), ents, r["id"]),
+        )
+    return n
 
 
 def _item_time(row: dict[str, Any]) -> datetime | None:
@@ -69,15 +110,17 @@ def _keyword_fallback(items: list[dict[str, Any]]) -> list[list[int]]:
     for i, row in enumerate(items):
         kws = []
         try:
-            kws = json.loads(row.get("keywords") or "[]")
+            kws = [k for k in json.loads(row.get("keywords") or "[]") if not is_junk_keyword(str(k))]
         except json.JSONDecodeError:
             pass
-        key = kws[0] if kws else re.sub(r"\W+", "", (row.get("title") or "x")[:24].lower()) or "misc"
-        clusters[key].append(i)
+        title_key = clean_display_title(row.get("title") or "x", max_len=40).lower()
+        key = (kws[0] if kws else re.sub(r"\W+", "", title_key) or "misc")
+        clusters[str(key)].append(i)
     return list(clusters.values())
 
 
 def _run_trend_detection_impl(conn: sqlite3.Connection) -> int:
+    sanitize_stored_media(conn)
     conn.execute("DELETE FROM recommendations")
     conn.execute("DELETE FROM trend_clusters")
     conn.execute("UPDATE media_items SET cluster_id = NULL")
@@ -126,9 +169,22 @@ def _run_trend_detection_impl(conn: sqlite3.Connection) -> int:
                 all_kw.extend(json.loads(x.get("keywords") or "[]"))
         except json.JSONDecodeError:
             all_kw = []
-        top_kw = list(dict.fromkeys(all_kw))[:6]
-        label = ", ".join(top_kw[:3]) if top_kw else (cluster_items[0].get("title") or "Trend")[:80]
-        summary = (cluster_items[0].get("text") or cluster_items[0].get("title") or "")[:280]
+        top_kw = [k for k in list(dict.fromkeys(all_kw)) if not is_junk_keyword(str(k))][:6]
+        # Prefer engagement-sorted clean titles for attractive headers
+        ranked = sorted(
+            cluster_items,
+            key=lambda x: int(x.get("engagement") or 0),
+            reverse=True,
+        )
+        label = attractive_cluster_label(
+            [str(x.get("title") or "") for x in ranked],
+            top_kw,
+            max_len=72,
+        )
+        summary = clean_plain_text(
+            ranked[0].get("text") or ranked[0].get("title") or "",
+            max_len=280,
+        )
 
         vol = normalize(float(len(indices)), float(max_size))
         eng_sum = sum(int(x.get("engagement") or 0) for x in cluster_items)
@@ -279,13 +335,15 @@ def get_trends_for_api(
             first_seen_at = row.get("created_at") or last_seen_at
         kws = []
         try:
-            kws = json.loads(row.get("keywords") or "[]")
+            kws = [k for k in json.loads(row.get("keywords") or "[]") if not is_junk_keyword(str(k))]
         except json.JSONDecodeError:
             pass
+        for it in items:
+            it["title"] = clean_display_title(it.get("title") or "", max_len=120)
         rec = {
             "id": cid,
-            "label": row["label"],
-            "summary": row.get("summary") or "",
+            "label": clean_display_title(row.get("label") or "", max_len=90),
+            "summary": clean_plain_text(row.get("summary") or "", max_len=320),
             "keywords": kws,
             "category": row.get("category") or "",
             "trend_score": round(float(row.get("trend_score") or 0), 1),

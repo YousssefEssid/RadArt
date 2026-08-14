@@ -286,10 +286,25 @@ def build_war_room(conn: sqlite3.Connection) -> dict[str, Any]:
         sector = sector or brief_full.get("sector")
 
     if not names:
-        # Default beverage demo set if Boga-like, else telecom-ish empty prompt
-        names = ["Coca-Cola", "Fanta", "Apla"]
-        source_mode = "demo_fallback"
-        client_name = client_name or "Your brand"
+        return {
+            "title": "Competitor War Room",
+            "subtitle": "Strategic intelligence — not just monitoring",
+            "brand": client_name,
+            "sector": sector,
+            "competitor_source": "none",
+            "brief_id": brief_row["id"] if brief_row else None,
+            "competitors": [],
+            "theme_board": [],
+            "opportunity_gaps": [],
+            "dossiers": [],
+            "summary": {
+                "competitor_count": 0,
+                "open_themes": 0,
+                "gap_count": 0,
+                "signals_indexed": 0,
+            },
+            "playbook": "Add competitors in Brand Brain (or a client brief) to open the War Room.",
+        }
 
     dossiers: list[dict[str, Any]] = []
     for name in names[:8]:
@@ -300,10 +315,6 @@ def build_war_room(conn: sqlite3.Connection) -> dict[str, Any]:
                 media = (media + _media_hits(conn, first, 10))[:14]
         trends = _trend_hits(conn, name, 6)
         dossiers.append(_build_dossier(name, media, trends, source_mode))
-
-    # If live signals are thin, enrich theme ownership with light heuristics from names/sector
-    if all(d["signal_count"] == 0 for d in dossiers) and sector:
-        dossiers = _seed_sector_themes(dossiers, str(sector))
 
     gaps = _opportunity_gaps(dossiers, client_name)
     board = _map_theme_board(dossiers)
@@ -330,98 +341,4 @@ def build_war_room(conn: sqlite3.Connection) -> dict[str, Any]:
             if gaps
             else "Keep collecting — theme ownership will sharpen as signals accumulate."
         ),
-    }
-
-
-def _seed_sector_themes(dossiers: list[dict[str, Any]], sector: str) -> list[dict[str, Any]]:
-    """When DB is empty, still demonstrate War Room strategic value with sector priors."""
-    sector_l = sector.lower()
-    priors: list[tuple[str, list[str], list[str]]] = []
-    if any(x in sector_l for x in ("beverage", "drink", "food", "boisson")):
-        priors = [
-            ("price", ["promo", "value"], ["convenience", "local"]),
-            ("premium", ["qualité"], ["convenience", "youth"]),
-            ("youth", ["tiktok"], ["premium", "trust"]),
-        ]
-    elif "telecom" in sector_l:
-        priors = [
-            ("price", ["data", "promo"], ["convenience", "family"]),
-            ("innovation", ["5g", "fibre"], ["local", "entertainment"]),
-            ("youth", ["illimité"], ["premium", "trust"]),
-        ]
-    else:
-        priors = [
-            ("price", [], ["convenience"]),
-            ("premium", [], ["convenience", "local"]),
-            ("trust", [], ["youth"]),
-        ]
-
-    out = []
-    for i, d in enumerate(dossiers):
-        own_theme, talk_bits, silent_list = priors[i % len(priors)]
-        seeded = {
-            **d,
-            "themes_owned": [own_theme],
-            "theme_scores": {own_theme: 78.0},
-            "talking_about": talk_bits
-            or [f"{d['name']} — communication dominante sur «{own_theme}» (prior sectoriel)"],
-            "audience_attracted": _audience_guess([own_theme], []),
-            "where_silent": silent_list,
-            "campaigns_gaining_traction": [
-                {
-                    "title": f"Campagne type «{own_theme}» — {d['name']}",
-                    "platform": "benchmark",
-                    "engagement": 0,
-                    "url": None,
-                }
-            ],
-            "content_formats": [{"format": "short_video", "share": 55.0, "count": 0}],
-            "notes": "Seeded sector prior (peu de signaux live) — remplacé dès que la collecte mentionne la marque.",
-            "seeded": True,
-        }
-        out.append(seeded)
-    return out
-
-
-def enrich_static_telecom_war_room(static: dict[str, Any]) -> dict[str, Any]:
-    """Upgrade the telecom demo study into War Room shape."""
-    cards = static.get("cards") or []
-    dossiers = []
-    for card in cards:
-        media = card.get("recent_signals") or []
-        trends = card.get("related_clusters") or []
-        d = _build_dossier(card["name"], media, trends, card.get("source_tag") or "benchmark")
-        d["notes"] = card.get("notes") or d["notes"]
-        dossiers.append(d)
-    # Force classic telecom narrative if needed
-    if len(dossiers) >= 2:
-        dossiers[0]["themes_owned"] = list(dict.fromkeys(["price", "youth"] + dossiers[0]["themes_owned"]))[:5]
-        dossiers[1]["themes_owned"] = list(dict.fromkeys(["innovation", "premium"] + dossiers[1]["themes_owned"]))[:5]
-        for t in ("convenience", "family"):
-            if t in dossiers[0]["themes_owned"]:
-                dossiers[0]["themes_owned"].remove(t)
-            if t in dossiers[1]["themes_owned"]:
-                dossiers[1]["themes_owned"].remove(t)
-
-    gaps = _opportunity_gaps(dossiers, static.get("client_name"))
-    board = _map_theme_board(dossiers)
-    return {
-        "title": "Competitor War Room",
-        "subtitle": "Strategic intelligence — telecom Tunisia demo",
-        "brand": static.get("client_name"),
-        "sector": static.get("sector"),
-        "competitor_source": "telecom_study",
-        "brief_id": static.get("brief_id"),
-        "competitors": static.get("competitors") or [],
-        "theme_board": board,
-        "opportunity_gaps": gaps,
-        "dossiers": dossiers,
-        "summary": {
-            "competitor_count": len(dossiers),
-            "open_themes": sum(1 for t in board if t["status"] == "open"),
-            "gap_count": len(gaps),
-            "signals_indexed": sum(d["signal_count"] for d in dossiers),
-        },
-        "playbook": gaps[0]["opportunity"] if gaps else "",
-        "legacy_report": static,
     }

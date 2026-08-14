@@ -16,7 +16,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { id: "brand", label: "Brand Brain", short: "Marque", path: "/marque", hint: "Brand DNA" },
       { id: "brief", label: "Brief client", short: "Brief", path: "/brief", hint: "Matcher un brief" },
       { id: "competitors", label: "Competitor War Room", short: "War Room", path: "/concurrents", hint: "Gaps & thèmes" },
-      { id: "sources", label: "Sources & collecte", short: "Sources", path: "/sources", hint: "Flux & statut" },
+      { id: "sources", label: "Sources & watchlists", short: "Sources", path: "/sources", hint: "Couverture & watchlists" },
     ],
   },
   {

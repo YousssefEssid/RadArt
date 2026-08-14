@@ -19,6 +19,7 @@ import requests
 from app.core.config import settings
 from app.seed_sources import GOOGLE_NEWS_RSS_QUERIES
 from app.utils.safety import request_headers
+from app.utils.text_clean import clean_display_title, clean_plain_text
 
 
 def _rss_url(query: str, hl: str = "fr", gl: str = "TN", ceid: str = "TN:fr") -> str:
@@ -56,11 +57,15 @@ def fetch_google_news_rss_items() -> tuple[list[dict[str, Any]], list[dict[str, 
             parsed = feedparser.parse(resp.content)
             count = 0
             for entry in parsed.entries[:20]:
-                title = (getattr(entry, "title", None) or "").strip() or "News"
+                title = clean_display_title(
+                    (getattr(entry, "title", None) or "").strip() or "News",
+                    max_len=160,
+                )
                 link = getattr(entry, "link", None) or ""
-                summary = (getattr(entry, "summary", None) or getattr(entry, "description", None) or "")[
-                    :2000
-                ]
+                summary = clean_plain_text(
+                    (getattr(entry, "summary", None) or getattr(entry, "description", None) or ""),
+                    max_len=2000,
+                )
                 pub = _published(entry)
                 raw = {"query": q, "title": title, "link": link, "published": pub}
                 items.append(

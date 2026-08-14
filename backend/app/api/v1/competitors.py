@@ -5,10 +5,9 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 
 from app.core.database import get_connection
-from app.services.competitor_demo_static import tunisia_telecom_study_report
 from app.services.competitor_intel_service import build_competitor_report, latest_brief_row
 from app.services.competitive_alerts_service import build_competitive_alerts
-from app.services.war_room_service import build_war_room, enrich_static_telecom_war_room
+from app.services.war_room_service import build_war_room
 
 router = APIRouter(prefix="/competitors", tags=["competitors"])
 
@@ -22,16 +21,9 @@ def competitor_war_room() -> dict[str, Any]:
 
 @router.get("/alerts")
 def competitive_alerts() -> dict[str, Any]:
-    """🚨 Competitor movement alerts — what moved, how fast, how to respond differently."""
+    """Competitor movement alerts — what moved, how fast, how to respond differently."""
     with get_connection() as conn:
         return build_competitive_alerts(conn)
-
-
-@router.get("/telecom-study")
-def competitors_telecom_study() -> dict[str, Any]:
-    """Legacy telecom demo + War Room enrichment."""
-    static = tunisia_telecom_study_report()
-    return enrich_static_telecom_war_room(static)
 
 
 @router.get("/report")

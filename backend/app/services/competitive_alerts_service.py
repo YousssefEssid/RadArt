@@ -189,33 +189,6 @@ def _build_alert(
     }
 
 
-def _demo_alerts(competitors: list[str], brand_name: str | None, sector: str | None) -> list[dict[str, Any]]:
-    """When live signals are thin, still show dependency-grade alert UX."""
-    if not competitors:
-        return []
-    lead = competitors[0]
-    sector_l = (sector or "").lower()
-    theme = "back_to_school"
-    if any(x in sector_l for x in ("beverage", "drink", "food")):
-        theme = "back_to_school"
-    elif "telecom" in sector_l:
-        theme = "youth"
-    return [
-        _build_alert(
-            competitor=lead,
-            theme=theme,
-            recent_count=12,
-            previous_count=9,
-            window_hours=48,
-            brand_name=brand_name,
-            sample_titles=[
-                f"{lead} — push “{_theme_label(theme)}” wave (demo signal)",
-                f"{lead} — short-form pack around {_theme_label(theme)}",
-            ],
-        )
-    ]
-
-
 def build_competitive_alerts(
     conn: sqlite3.Connection,
     *,
@@ -237,8 +210,7 @@ def build_competitive_alerts(
         for row in rows:
             dt = _item_dt(row)
             if not dt:
-                # undated → treat as recent-ish for demo density
-                bucket = "recent"
+                continue
             elif dt >= recent_cut:
                 bucket = "recent"
             elif dt >= prev_cut:
@@ -282,18 +254,13 @@ def build_competitive_alerts(
         key=lambda a: (0 if a["severity"] == "high" else 1, -a["content_count"], -a["acceleration_pct"])
     )
 
-    sourced = "live_signals"
-    if not alerts:
-        alerts = _demo_alerts(names, brand_name, sector)
-        sourced = "demo_seed"
-
     return {
         "generated_at": now.isoformat(),
         "brand": brand_name,
         "competitors_watched": names,
         "window_hours": window_hours,
         "count": len(alerts),
-        "source": sourced,
+        "source": "live_signals",
         "alerts": alerts[:10],
         "dependency_line": (
             "RadArt watches competitors so your team doesn’t have to — "

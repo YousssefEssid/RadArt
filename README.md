@@ -59,7 +59,10 @@ RadArt is **not** a generic news reader or “top trends” wall.
 
 ### 4. Sources & collecte (`/sources`)
 - Status of every collector (ok / error / skipped)
+- **Signal coverage** board: Tunisia market context + live / needs key / customer-owned / planned / forbidden
+- Upload **customer-owned** JSON exports (legal Meta/TikTok path)
 - Trigger a **full collection** of all intel sources
+- Optional keys: YouTube, SerpApi Trends, Meta Graph pages, TikTok official token
 
 ### 5. Tarifs / Contact (`/tarifs`, `/contact`)
 - Product packaging (Start / Pro / Agency) and contact for custom needs
@@ -74,8 +77,8 @@ Public sources          SQLite              Intelligence
 RSS / Google News  ──►  media_items    ──►  trend clusters (scores)
 Reddit / Apple Music    trend_clusters      Morning Radar buckets
 YouTube / GDELT         client_briefs       brief matching
-SerpApi (optional)      recommendations     campaign cards
-mock social demos
+SerpApi / Meta / TikTok recommendations     campaign cards
+(customer-owned JSON)   brand_profiles      Brand Brain + RAD
 ```
 
 1. **Collect** curated public feeds (no unofficial Meta/TikTok scrape)
@@ -170,11 +173,13 @@ Copy `.env.example` to `.env` at the project root.
 | `GEMINI_API_KEY` | LLM fallback if OpenAI is unset |
 | `YOUTUBE_API_KEY` | YouTube search results |
 | `SERPAPI_API_KEY` | Google Trends via SerpApi |
+| `META_PAGE_ACCESS_TOKEN` + `META_PAGE_IDS` | Official Graph API for authorized pages |
+| `TIKTOK_ACCESS_TOKEN` | Official TikTok API when approved |
 | `COLLECTION_INTERVAL_MINUTES` | Default `15` |
 | `DATABASE_PATH` | Default `backend/data/radart.db` |
 | `CORS_ORIGINS` | Default `*` |
 
-The demo runs **without API keys** (RSS, Reddit RSS, Apple Music charts, Google News RSS, mock social, rule-based outputs).
+The demo runs **without API keys** (RSS, Reddit RSS, Apple Music charts, Google News RSS, rule-based LLM fallbacks).
 
 ---
 
@@ -187,14 +192,18 @@ The demo runs **without API keys** (RSS, Reddit RSS, Apple Music charts, Google 
 | Reddit RSS (`r/Tunisia` + viral mix) | What people hop on | No |
 | Apple Music charts (TN / FR / US) | Songs going mainstream | No |
 | GDELT | Global news mentions | No |
-| Mock social JSON | TikTok / IG / FB-style captions for demos | No |
+| Customer-owned JSON exports | Brand/agency Meta–TikTok dumps they have rights to | No (upload) |
 | YouTube Data API | Video search | Optional |
 | SerpApi Google Trends | Related queries / topics | Optional |
+| Meta Graph API | Posts from pages you manage / authorize | Optional |
+| TikTok official API | When approved; else customer-owned path | Optional |
+| Licensed social firehose | Dense TN FB/IG/TikTok (roadmap) | Partner |
 
 ### Legal note
 
 - Collectors use the `RadArtBot/1.0` user agent, timeouts, and curated public URLs only.
-- RadArt does **not** scrape private Meta / TikTok feeds or bypass logins (ToS). Official APIs or your own licensed content would be required for live social.
+- RadArt does **not** scrape private Meta / TikTok feeds or bypass logins. Coverage grows via official APIs, customer-owned exports, and licensed partners.
+- See `/sources` → Signal coverage for the live vs needs-key vs forbidden map.
 - Hashtags, @mentions, and caption-like text **are** parsed when present in ingested content.
 - Google Trends charts are not an official REST API; SerpApi is the optional supported path.
 

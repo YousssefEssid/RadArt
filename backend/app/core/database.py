@@ -1,7 +1,7 @@
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Generator, Iterable
+from typing import Any, Generator
 
 from app.core.config import settings
 
@@ -105,7 +105,65 @@ CREATE TABLE IF NOT EXISTS brand_profiles (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS watchlists (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  workspace_id INTEGER NOT NULL DEFAULT 1,
+  name TEXT NOT NULL,
+  is_default INTEGER DEFAULT 0,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS watchlist_terms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  watchlist_id INTEGER NOT NULL,
+  term_type TEXT NOT NULL,
+  value TEXT NOT NULL,
+  lang TEXT DEFAULT 'mixed',
+  created_at TEXT NOT NULL,
+  UNIQUE(watchlist_id, term_type, value),
+  FOREIGN KEY (watchlist_id) REFERENCES watchlists(id)
+);
+
+CREATE TABLE IF NOT EXISTS watchlist_accounts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  watchlist_id INTEGER NOT NULL,
+  platform TEXT NOT NULL,
+  handle TEXT NOT NULL,
+  external_id TEXT,
+  role TEXT DEFAULT 'creator',
+  created_at TEXT NOT NULL,
+  UNIQUE(watchlist_id, platform, handle),
+  FOREIGN KEY (watchlist_id) REFERENCES watchlists(id)
+);
+
+CREATE TABLE IF NOT EXISTS collector_health_runs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  source TEXT NOT NULL,
+  status TEXT,
+  items INTEGER DEFAULT 0,
+  error TEXT,
+  ran_at TEXT NOT NULL
+);
 """
+
+_MEDIA_EXTRA_COLS = [
+    ("source_type", "TEXT"),
+    ("source_method", "TEXT"),
+    ("provider", "TEXT"),
+    ("author_name", "TEXT"),
+    ("author_external_id", "TEXT"),
+    ("views", "INTEGER"),
+    ("likes", "INTEGER"),
+    ("comments", "INTEGER"),
+    ("shares", "INTEGER"),
+    ("hashtags", "TEXT"),
+    ("mentions", "TEXT"),
+    ("country", "TEXT"),
+    ("confidence", "REAL"),
+    ("raw_metadata_json", "TEXT"),
+]
 
 
 def get_db_path() -> Path:
@@ -116,7 +174,7 @@ def _migrate(conn: sqlite3.Connection) -> None:
     cols = {row[1] for row in conn.execute("PRAGMA table_info(client_briefs)").fetchall()}
     if "competitors_json" not in cols:
         conn.execute("ALTER TABLE client_briefs ADD COLUMN competitors_json TEXT")
-    # brand_profiles created via SCHEMA; ensure table exists on older DBs
+
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS brand_profiles (
@@ -140,6 +198,53 @@ def _migrate(conn: sqlite3.Connection) -> None:
           created_at TEXT NOT NULL,
           updated_at TEXT NOT NULL
         )
+        """
+    )
+
+    media_cols = {row[1] for row in conn.execute("PRAGMA table_info(media_items)").fetchall()}
+    for name, typ in _MEDIA_EXTRA_COLS:
+        if name not in media_cols:
+            conn.execute(f"ALTER TABLE media_items ADD COLUMN {name} {typ}")
+
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS watchlists (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          workspace_id INTEGER NOT NULL DEFAULT 1,
+          name TEXT NOT NULL,
+          is_default INTEGER DEFAULT 0,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS watchlist_terms (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          watchlist_id INTEGER NOT NULL,
+          term_type TEXT NOT NULL,
+          value TEXT NOT NULL,
+          lang TEXT DEFAULT 'mixed',
+          created_at TEXT NOT NULL,
+          UNIQUE(watchlist_id, term_type, value),
+          FOREIGN KEY (watchlist_id) REFERENCES watchlists(id)
+        );
+        CREATE TABLE IF NOT EXISTS watchlist_accounts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          watchlist_id INTEGER NOT NULL,
+          platform TEXT NOT NULL,
+          handle TEXT NOT NULL,
+          external_id TEXT,
+          role TEXT DEFAULT 'creator',
+          created_at TEXT NOT NULL,
+          UNIQUE(watchlist_id, platform, handle),
+          FOREIGN KEY (watchlist_id) REFERENCES watchlists(id)
+        );
+        CREATE TABLE IF NOT EXISTS collector_health_runs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          source TEXT NOT NULL,
+          status TEXT,
+          items INTEGER DEFAULT 0,
+          error TEXT,
+          ran_at TEXT NOT NULL
+        );
         """
     )
 

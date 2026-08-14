@@ -11,6 +11,11 @@ RSS_SOURCES = [
     {"name": "Kapitalis", "url": "https://kapitalis.com/tunisie/feed/", "category": "general"},
     {"name": "L'Economiste Maghrebin", "url": "https://www.leconomistemaghrebin.com/feed/", "category": "business"},
     {"name": "African Manager", "url": "https://www.africanmanager.com/feed/", "category": "business"},
+    {"name": "Leaders Tunisie", "url": "https://www.leaders.com.tn/rss.xml", "category": "business"},
+    {"name": "Réalités", "url": "https://realites.com.tn/fr/feed/", "category": "general"},
+    {"name": "Tuniscope", "url": "https://www.tuniscope.com/feed/", "category": "lifestyle"},
+    {"name": "Shems FM", "url": "https://www.shemsfm.net/fr/rss", "category": "culture"},
+    {"name": "Jawhara FM", "url": "https://www.jawharafm.net/fr/rss", "category": "culture"},
     {"name": "France 24 Afrique", "url": "https://www.france24.com/fr/afrique/rss", "category": "general"},
     {"name": "BBC Afrique", "url": "https://feeds.bbci.co.uk/afrique/rss.xml", "category": "general"},
     {"name": "Jeune Afrique", "url": "https://www.jeuneafrique.com/rss/", "category": "general"},
@@ -32,10 +37,12 @@ YOUTUBE_QUERIES = [
     "Ramadan Tunisie",
     "concert Tunisie",
     "rap tunisien",
+    "rentrée scolaire Tunisie",
+    "humour tunisien",
+    "derja Tunisie",
 ]
 
 # Public RSS feeds from news.google.com (not Google Trends charts; no API key).
-# Optional hl/gl/ceid → world vs Tunisia.
 GOOGLE_NEWS_RSS_QUERIES = [
     {"q": "Tunisie", "category": "general"},
     {"q": "économie Tunisie", "category": "business"},
@@ -44,6 +51,9 @@ GOOGLE_NEWS_RSS_QUERIES = [
     {"q": "viral Tunisie OR tiktok Tunisie OR meme Tunisie", "category": "viral"},
     {"q": "musique Tunisie OR chanson Tunisie OR rap Tunisie", "category": "culture"},
     {"q": "festival Tunisie OR concert Tunisie", "category": "culture"},
+    {"q": "rentrée scolaire Tunisie OR étudiants Tunisie", "category": "youth"},
+    {"q": "télécom Tunisie OR Ooredoo OR Orange Tunisie OR Tunisie Telecom", "category": "business"},
+    {"q": "boisson OR café OR soda Tunisie", "category": "lifestyle"},
     {
         "q": "viral meme OR tiktok trend OR internet challenge",
         "category": "viral",
@@ -70,6 +80,8 @@ GOOGLE_NEWS_RSS_QUERIES = [
 SERPAPI_GOOGLE_TRENDS_SEEDS = [
     {"q": "Tunisie", "category": "general"},
     {"q": "tiktok", "category": "viral"},
+    {"q": "rentrée", "category": "youth"},
+    {"q": "Ramadan", "category": "culture"},
 ]
 
 SERPAPI_GOOGLE_TRENDS_TIMESERIES_QUERIES = [
@@ -78,6 +90,7 @@ SERPAPI_GOOGLE_TRENDS_TIMESERIES_QUERIES = [
     "football Tunisie",
     "Ramadan Tunisie",
     "inflation Tunisie",
+    "rentrée scolaire",
 ]
 
 GDELT_KEYWORDS = [
@@ -87,15 +100,14 @@ GDELT_KEYWORDS = [
     "Tunisia music",
     "tourism Tunisia",
     "inflation Tunisia",
+    "Tunisia students",
 ]
 
-# Public Reddit RSS (JSON is blocked without OAuth). Few feeds = avoid 429.
 REDDIT_FEEDS = [
     {"name": "r/Tunisia", "path": "Tunisia", "category": "general"},
     {"name": "Reddit viral mix", "path": "memes+videos+Music+soccer+OutOfTheLoop", "category": "viral"},
 ]
 
-# Public Apple / iTunes RSS charts (no API key).
 ITUNES_CHARTS = [
     {"store": "tn", "kind": "topsongs", "category": "culture", "label": "Apple Music TN"},
     {"store": "fr", "kind": "topsongs", "category": "culture", "label": "Apple Music FR"},

@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { getCompetitorWarRoom, getTelecomWarRoom, type WarRoomDossier, type WarRoomReport } from "@/shared/api";
-import { useState } from "react";
+import { getCompetitorWarRoom, type WarRoomDossier, type WarRoomReport } from "@/shared/api";
 
 function ThemeChip({ theme, open }: { theme: string; open?: boolean }) {
   return (
@@ -220,57 +219,24 @@ function WarRoomView({ report }: { report: WarRoomReport }) {
 }
 
 export default function CompetitorsPage() {
-  const [mode, setMode] = useState<"live" | "telecom">("live");
-
-  const liveQuery = useQuery({
+  const q = useQuery({
     queryKey: ["competitors", "war-room"],
     queryFn: getCompetitorWarRoom,
-    enabled: mode === "live",
   });
-
-  const telecomQuery = useQuery({
-    queryKey: ["competitors", "telecom-war-room"],
-    queryFn: getTelecomWarRoom,
-    enabled: mode === "telecom",
-  });
-
-  const q = mode === "live" ? liveQuery : telecomQuery;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <p className="max-w-xl text-sm text-slate-600">
-          Pas seulement de la veille — une War Room : thèmes possédés, silences, et opportunity gaps.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setMode("live")}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-              mode === "live" ? "bg-radj-navy text-radj-lime" : "border border-slate-300 bg-white text-slate-700"
-            }`}
-          >
-            Brand Brain War Room
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("telecom")}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-              mode === "telecom" ? "bg-radj-navy text-radj-lime" : "border border-slate-300 bg-white text-slate-700"
-            }`}
-          >
-            Demo telecom TN
-          </button>
-        </div>
-      </div>
+      <p className="max-w-xl text-sm text-slate-600">
+        Pas seulement de la veille — une War Room : thèmes possédés, silences, et opportunity gaps.
+      </p>
 
-      {!q.data && !q.isFetching ? (
+      {!q.data?.competitors?.length && !q.isFetching ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-sm text-slate-600">
           Configurez vos concurrents dans{" "}
           <Link to="/marque" className="font-semibold text-radj-navy underline-offset-2 hover:underline">
             Brand Brain
           </Link>{" "}
-          pour une War Room plus précise.
+          pour ouvrir la War Room.
         </div>
       ) : null}
 
@@ -286,7 +252,7 @@ export default function CompetitorsPage() {
         </p>
       ) : null}
 
-      {q.data ? <WarRoomView report={q.data} /> : null}
+      {q.data && q.data.competitors.length ? <WarRoomView report={q.data} /> : null}
     </div>
   );
 }

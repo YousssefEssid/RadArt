@@ -9,6 +9,7 @@ from app.repositories import brand as brand_repo
 from app.services.competitive_alerts_service import build_competitive_alerts
 from app.services.opportunity_card_service import build_opportunity_card, get_full_brief
 from app.services.trend_service import get_trends_for_api
+from app.utils.text_clean import clean_display_title
 from app.utils.time_utils import parse_iso
 
 SignalKind = Literal[
@@ -149,7 +150,7 @@ def _why(
     brand_fit: float = 0.0,
     competitor: str | None = None,
 ) -> str:
-    label = trend.get("label") or "Tendance"
+    label = clean_display_title(trend.get("label") or "Tendance", max_len=72)
     ts = float(trend.get("trend_score") or 0)
     risk = float(trend.get("risk_score") or 0)
     g = scores["growth_score"]

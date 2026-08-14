@@ -131,28 +131,6 @@ export default function BrandBrainPage() {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function loadBogaExample() {
-    setEditingId(null);
-    setForm({
-      brand_name: "Boga",
-      industry: "Beverage",
-      country: "Tunisia",
-      audience: "16–35",
-      personality: "funny / Tunisian / accessible",
-      languages: "derja, French",
-      competitors: "Coca-Cola, Fanta, Apla",
-      channels: "TikTok, Instagram, Facebook",
-      objectives: "awareness, engagement",
-      forbidden_topics: "politics, religion",
-      tone: "playful",
-      previous_campaigns: "Summer heat memes, campus activations",
-      brand_guidelines_text: "",
-      products: "Boga cidre, variants fruités",
-      budget_level: "€€",
-    });
-    setMsg("Exemple Boga chargé — enregistrez pour activer le Brand Brain.");
-  }
-
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:p-6">
@@ -163,13 +141,6 @@ export default function BrandBrainPage() {
           cette lentille. Savoir <strong>quand ne pas chase</strong> une tendance est le produit.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={loadBogaExample}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-radj-navy"
-          >
-            Charger l’exemple Boga
-          </button>
           <Link
             to="/dashboard"
             className="rounded-xl border border-radj-navy bg-radj-navy px-4 py-2 text-sm font-semibold text-radj-lime"

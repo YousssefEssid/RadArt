@@ -11,6 +11,7 @@ from app.services.llm_service import generate_json
 from app.services.rad_score_service import compute_rad_score
 from app.services.recommendation_service import brand_fit
 from app.services.trend_service import get_trends_for_api
+from app.utils.text_clean import clean_display_title, clean_plain_text
 from app.utils.time_utils import parse_iso
 
 PLATFORM_LABELS: dict[str, str] = {
@@ -23,7 +24,6 @@ PLATFORM_LABELS: dict[str, str] = {
     "gdelt": "GDELT",
     "serpapi": "Google Trends",
     "google_trends": "Google Trends",
-    "mock_social": "TikTok / Instagram signal",
     "tiktok": "TikTok signal",
     "instagram": "Instagram signal",
     "facebook": "Facebook signal",
@@ -291,6 +291,7 @@ def _timing_days(lifecycle_key: str, trend_score: float) -> str:
 
 def _campaign_name(label: str, brief: dict[str, Any]) -> str:
     sector = (brief.get("sector") or "").lower()
+    label = clean_display_title(label, max_len=48)
     low = label.lower()
     if any(x in low for x in ("summer", "été", "canicule", "heat", "nostalg")):
         return "رجعنا للصيف"
@@ -307,14 +308,14 @@ def _campaign_name(label: str, brief: dict[str, Any]) -> str:
 
 
 def _why_growing_fallback(trend: dict[str, Any], scores: dict[str, float], sources: list[str]) -> str:
-    label = trend.get("label") or "Ce sujet"
+    label = clean_display_title(trend.get("label") or "Ce sujet", max_len=72)
     cat = trend.get("category") or "général"
-    summary = (trend.get("summary") or "").strip()
+    summary = clean_plain_text(trend.get("summary") or "", max_len=180)
     src = ", ".join(sources[:4]) if sources else "plusieurs sources publiques"
     g = scores["growth_score"]
     parts = [
         f"«{label}» monte dans la conversation {cat} (croissance {g:.0f}/100), visible sur {src}.",
-        summary[:180] + ("…" if len(summary) > 180 else "")
+        summary + ("…" if summary and len(summary) >= 180 else "")
         if summary
         else "Les signaux agrégés montrent une accélération récente du volume et de la diversité des sources.",
         "En Tunisie / MENA, ce type de moment se propage vite entre presse locale, charts et formats courts — la fenêtre créative est courte.",
@@ -334,7 +335,7 @@ def _recommended_move(
     local_angle: str | None = None,
     verdict: str | None = None,
 ) -> dict[str, Any]:
-    label = trend.get("label") or "cette tendance"
+    label = clean_display_title(trend.get("label") or "cette tendance", max_len=72)
     client = brief.get("client_name") or "la marque"
     if verdict == "skip":
         return {
@@ -450,7 +451,7 @@ def build_opportunity_card(
         move["channels"] = " + ".join(brand["channels"][:3])
 
     fallback_llm = {
-        "title": trend.get("label") or "Opportunity",
+        "title": clean_display_title(trend.get("label") or "Opportunity", max_len=90),
         "why_growing": why,
         "campaign": move["campaign"],
         "concept": move["concept"],
@@ -470,8 +471,8 @@ Scores momentum={momentum['score']} tunisia={tn} fit={fit:.0f} risk={risk:.0f} s
 """,
             fallback_llm,
         )
-        title = str(enriched.get("title") or trend.get("label"))
-        why = str(enriched.get("why_growing") or why)
+        title = clean_display_title(str(enriched.get("title") or trend.get("label")), max_len=90)
+        why = clean_plain_text(str(enriched.get("why_growing") or why), max_len=900)
         move["campaign"] = str(enriched.get("campaign") or move["campaign"])
         move["concept"] = str(enriched.get("concept") or move["concept"])
         move["channels"] = str(enriched.get("channels") or move["channels"])
@@ -479,7 +480,7 @@ Scores momentum={momentum['score']} tunisia={tn} fit={fit:.0f} risk={risk:.0f} s
         if isinstance(fr, list) and fr and verdict != "skip":
             reasons = [str(x) for x in fr][:5]
     else:
-        title = str(trend.get("label") or "Opportunity")
+        title = clean_display_title(str(trend.get("label") or "Opportunity"), max_len=90)
 
     brand_block = None
     if brand or brief.get("id") or brief.get("client_name") or brief.get("sector"):

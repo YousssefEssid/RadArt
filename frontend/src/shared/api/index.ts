@@ -406,6 +406,164 @@ export function getCompetitiveAlerts() {
   return j<CompetitiveAlertsReport>(fetch(`${getApiBase()}/api/competitors/alerts`));
 }
 
+export type SignalCoverageSource = {
+  name: string;
+  status: string;
+  needs_key?: boolean;
+  env?: string;
+  path?: string;
+  detail?: string;
+};
+
+export type SignalCoverageLayer = {
+  id: string;
+  title: string;
+  tier: string;
+  compliance: string;
+  sources: SignalCoverageSource[];
+};
+
+export type SignalCoverageReport = {
+  principle: string;
+  tunisia_market: {
+    as_of: string;
+    facebook_users_m: number;
+    instagram_users_m: number;
+    tiktok_adults_reachable_m: number;
+    note: string;
+  };
+  mvp_strength: string;
+  next_priority: string[];
+  summary: { live: number; needs_key: number; planned: number };
+  layers: SignalCoverageLayer[];
+};
+
+export function getSignalCoverage() {
+  return j<SignalCoverageReport>(fetch(`${getApiBase()}/api/sources/coverage`));
+}
+
+export async function uploadCustomerOwnedFile(file: File): Promise<{ saved: number; filename?: string; message: string }> {
+  const fd = new FormData();
+  fd.append("file", file);
+  const r = await fetch(`${getApiBase()}/api/sources/customer-owned/upload`, { method: "POST", body: fd });
+  if (!r.ok) throw new Error((await r.text()) || r.statusText);
+  return r.json();
+}
+
+export type SourceHealthMatrixRow = {
+  source: string;
+  status: string;
+  light: string;
+  collection: string;
+  detail?: string | null;
+};
+
+export type SourceHealthReport = {
+  generated_at: string;
+  principle: string;
+  matrix: SourceHealthMatrixRow[];
+  collectors: {
+    source: string;
+    enabled: boolean;
+    credential_status: string;
+    source_method: string;
+    provider: string;
+    light?: string;
+    collection_label?: string;
+    items_collected_24h?: number;
+    detail?: string | null;
+    last_error?: string | null;
+  }[];
+};
+
+export function getSourceHealth() {
+  return j<SourceHealthReport>(fetch(`${getApiBase()}/api/sources/health`));
+}
+
+export type Watchlist = {
+  id: number;
+  workspace_id: number;
+  name: string;
+  is_default: number;
+};
+
+export type WatchlistTerm = {
+  id: number;
+  watchlist_id: number;
+  term_type: string;
+  value: string;
+  lang?: string;
+};
+
+export type WatchlistAccount = {
+  id: number;
+  watchlist_id: number;
+  platform: string;
+  handle: string;
+  role?: string;
+};
+
+export type WatchlistBundle = {
+  watchlist: Watchlist;
+  terms: WatchlistTerm[];
+  accounts: WatchlistAccount[];
+  by_type: Record<string, string[]>;
+  creators: string[];
+};
+
+export function listWatchlists() {
+  return j<{ workspace_id: number; watchlists: Watchlist[] }>(fetch(`${getApiBase()}/api/watchlists`));
+}
+
+export function getWatchlist(id: number) {
+  return j<WatchlistBundle>(fetch(`${getApiBase()}/api/watchlists/${id}`));
+}
+
+export function addWatchlistTerm(watchlistId: number, term_type: string, value: string) {
+  return j<WatchlistTerm>(
+    fetch(`${getApiBase()}/api/watchlists/${watchlistId}/terms`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ term_type, value }),
+    }),
+  );
+}
+
+export function deleteWatchlistTerm(watchlistId: number, termId: number) {
+  return j<{ deleted: boolean }>(
+    fetch(`${getApiBase()}/api/watchlists/${watchlistId}/terms/${termId}`, { method: "DELETE" }),
+  );
+}
+
+export function addWatchlistAccount(watchlistId: number, platform: string, handle: string) {
+  return j<WatchlistAccount>(
+    fetch(`${getApiBase()}/api/watchlists/${watchlistId}/accounts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ platform, handle }),
+    }),
+  );
+}
+
+export function deleteWatchlistAccount(watchlistId: number, accountId: number) {
+  return j<{ deleted: boolean }>(
+    fetch(`${getApiBase()}/api/watchlists/${watchlistId}/accounts/${accountId}`, { method: "DELETE" }),
+  );
+}
+
+export function confirmTrendTopic(topic: string, hours = 48) {
+  const p = new URLSearchParams({ topic, hours: String(hours) });
+  return j<{
+    topic: string;
+    tier: string;
+    label: string;
+    confirmation_score: number;
+    narrative: string;
+    categories: string[];
+    independent_source_categories: number;
+  }>(fetch(`${getApiBase()}/api/trends/confirm?${p}`));
+}
+
 export type MediaItem = {
   id: number;
   source: string;
@@ -672,41 +830,4 @@ export type WarRoomReport = {
 
 export function getCompetitorWarRoom() {
   return j<WarRoomReport>(fetch(`${getApiBase()}/api/competitors/war-room`));
-}
-
-export function getTelecomWarRoom() {
-  return j<WarRoomReport>(fetch(`${getApiBase()}/api/competitors/telecom-study`));
-}
-
-/** @deprecated prefer getTelecomWarRoom — kept for compatibility */
-export async function getTelecomCompetitiveStudy(): Promise<CompetitorsReport> {
-  try {
-    const wr = await getTelecomWarRoom();
-    const legacy = (wr as WarRoomReport & { legacy_report?: CompetitorsReport }).legacy_report;
-    if (legacy) return legacy;
-    return {
-      brief_id: wr.brief_id || 0,
-      client_name: wr.brand || null,
-      sector: wr.sector || null,
-      target: null,
-      competitor_source: wr.competitor_source,
-      competitors: wr.competitors,
-      cards: wr.dossiers.map((d) => ({
-        name: d.name,
-        source_tag: d.source_tag,
-        signal_count: d.signal_count,
-        recent_signals: (d.recent_signals as CompetitorsReport["cards"][0]["recent_signals"]) || [],
-        related_clusters: (d.related_clusters as CompetitorsReport["cards"][0]["related_clusters"]) || [],
-        notes: d.notes || "",
-      })),
-    };
-  } catch (firstError) {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const r = await fetch(`${origin}/studies/telecom-tn.json`);
-    if (!r.ok) {
-      const msg = firstError instanceof Error ? firstError.message : "Chargement impossible";
-      throw new Error(`${msg} Vérifiez la connexion au serveur ou rechargez la page.`);
-    }
-    return r.json() as Promise<CompetitorsReport>;
-  }
 }

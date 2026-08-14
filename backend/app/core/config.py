@@ -27,6 +27,27 @@ class Settings(BaseSettings):
     serpapi_google_trends_include_timeseries: bool = False
     serpapi_google_trends_tz: int | None = None
 
+    # Official Meta Graph — pages the customer manages/authorizes (never scrape private feeds)
+    meta_page_access_token: str = ""
+    meta_page_ids: str = ""
+    instagram_business_account_id: str = ""
+    meta_ig_hashtag_enabled: bool = False
+    meta_ig_business_discovery_enabled: bool = False
+    meta_page_public_content_enabled: bool = False
+
+    # Official TikTok API token when product access is approved
+    tiktok_access_token: str = ""
+
+    # Google Trends official API (alpha) — SerpApi remains the live path
+    google_trends_api_key: str = ""
+
+    # Social search discovery (SerpApi Google by default)
+    search_discovery_api_key: str = ""
+    search_discovery_max_queries_per_run: int = 6
+
+    # Experimental providers (never enable unofficial scrapers in prod)
+    enable_experimental_collectors: bool = False
+
     collection_interval_minutes: int = 15
     # Prefer absolute or project-relative path. SQLite today; swap URL later for Postgres.
     database_path: str = str(_BACKEND_ROOT / "data" / "radart.db")
