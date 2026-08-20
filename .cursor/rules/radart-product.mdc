@@ -1,0 +1,101 @@
+---
+description: RadArt product vision, users, and non-goals
+alwaysApply: true
+---
+
+# RadArt — product
+
+**Positioning:** AI Cultural & Marketing Intelligence for Tunisia and MENA.
+
+**Promise:** RadArt detects what is gaining attention, understands whether it matters for your brand, and turns it into campaigns you can actually execute.
+
+Commercial question to answer (not “another trends dashboard”):
+
+> What is happening right now, what matters for my brand, what should we do about it, and why?
+
+Technical pipeline (still true, but secondary in UX copy):
+
+```
+collect → enrich → cluster → score → match brief → recommend
+```
+
+## Moat direction
+
+- Local + speed + actionable recommendations (not “more sources than Brandwatch”)
+- Language reality: Tunisian Derja + Arabizi + Arabic + French + English
+- **Brand Brain (Brand DNA)** — every signal interpreted through the company; knowing when **not** to chase is core value
+- **RAD Score** (product identity) — proprietary Trend × Brand score
+
+## RAD Score
+
+```
+RAD = Relevance × Acceleration × Differentiation
+```
+
+Geometric mean of pillars, built from: momentum, freshness, Tunisia relevance, audience overlap, brand fit, source diversity, competitive saturation, − brand safety risk.
+
+Always show **RAD SCORE N** + tier label + **why**. Never a naked number.
+
+## Brand Brain
+
+Onboarding is not “brand name?”. Capture Brand DNA: industry, country, audience, personality, languages, competitors, channels, objectives, forbidden topics, tone, campaigns, guidelines, products, budget.
+
+Then Opportunity Cards return chase / caution / **don’t chase** with fit %.
+
+## Users
+
+- Agency / digital teams
+- Brand / social managers
+- Strategy / creative
+
+## Product language
+
+- UI and demos lean **French**; code/comments English unless the file is FR copy.
+- Lead with **workflows** (Morning Radar first), not charts.
+
+## Core workflow — Morning Radar → Opportunity Cards
+
+When a marketer opens the app, answer “what changed?” then turn **every trend** into an **Opportunity Card**:
+
+- Momentum, Tunisia relevance, audience, lifecycle, sources
+- Why it’s growing (cultural context, 3–4 sentences)
+- Brand Fit (+ reasons) against the client brief
+- Recommended move: campaign, concept, channels, timing, risk, saturation
+
+Customers buy time saved for strategists + ready work for creatives — not raw data.
+
+Morning Radar buckets (Emerging / Growing / Competitor / …) group those cards.
+
+## Should we jump on this?
+
+Killer workflow on each Opportunity Card:
+
+1. **Analyse for my brand** → YES / CAUTION / NO + brand fit, audience fit, maturity, competitor saturation, reputational risk
+2. **Generate Campaign** (if YES/CAUTION) → big idea, insight, concept, key message, TikTok/Reel concepts, captions, visual direction, influencer profile, hashtags, timing, KPIs
+
+Pipeline: social listening → jump decision → marketing execution.
+
+## Competitor War Room
+
+Not monitoring-only. Per competitor: talking about, campaigns, themes owned, audience, formats, silences, early adopts.
+Especially **opportunity gaps** (price vs premium → convenience open). Strategic intelligence.
+
+## Competitive alerts
+
+Dependency feature: **Competitor movement detected** — volume in 48h, acceleration %, differentiated response angle (e.g. Parents vs Students, not promo war). Shown on Morning Radar + `GET /api/competitors/alerts`.
+
+## Do not build unless explicitly asked
+
+- Auth / payments / complex admin roles
+- Unofficial Meta/TikTok scrape or login/paywall bypass
+- Infinite crawlers
+- Heavy ML training
+- Premature Postgres / Redis / job-queue migrations
+
+## Demo resilience
+
+Useful **without API keys**: RSS, public feeds, rule-based LLM fallbacks. Prefer empty states over fake signals.
+
+## Data (biggest product risk)
+
+MVP coverage ≠ market coverage. Tunisia has multi‑million FB/IG/TikTok audiences — RadArt must grow signal via official APIs, customer-owned exports, and licensed partners. Never unofficial scrapes. See Sources → Signal coverage.

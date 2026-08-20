@@ -1,0 +1,40 @@
+---
+description: FastAPI backend layers and conventions for RadArt
+globs: backend/**/*.py
+alwaysApply: false
+---
+
+# Backend architecture
+
+Respect layered flow:
+
+```
+api/v1 (routers) → services → repositories → SQLite
+                 ↘ collectors (ingestion only)
+                 ↘ jobs (scheduler)
+```
+
+## Rules
+
+- **Routers**: HTTP only — validate with Pydantic, call services, no SQL.
+- **Services**: business logic (trends, briefs, scoring, recommendations, LLM).
+- **Repositories**: SQL access only; keep queries in `repositories/`.
+- **Collectors**: fetch + normalize media items; never write recommendations or UI concerns.
+- **Schemas**: request/response in `schemas/`; keep API contracts stable unless migrating callers.
+
+## Reliability
+
+- Collectors **must not crash the app**: catch errors, return `[]` or status, continue.
+- HTTP timeouts short (≈8s); startup must not block on full collection.
+- Deduplicate via stable `hash`; ignore duplicate inserts.
+- LLM via `llm_service`: OpenAI → Gemini → rule-based fallback; always JSON-safe with fallback.
+
+## Config & data
+
+- Settings from `app.core.config` / env (see `.env.example`).
+- Default DB: `backend/data/radart.db` — design SQL so Postgres later is possible, but do not require it now.
+- New tables: add to `init_db` / migrations path already used in the project; document fields in the PR/summary.
+
+## Tests
+
+- Prefer small tests under `backend/app/tests/` for health and critical services when touching scoring/matching.

@@ -1,0 +1,48 @@
+---
+description: How Cursor and the human collaborate on RadArt features
+alwaysApply: true
+---
+
+# Collaboration — mutual understanding
+
+## How the human works
+
+- Building **from the ground up**: prefer clear structure over clever shortcuts.
+- Wants Cursor to **explain intent briefly** when proposing architecture, then implement.
+- Prefers **short, direct** chat answers; put detail in code and plans, not essays.
+- Ask before commits, pushes, or large refactors unrelated to the task.
+
+## How Cursor should work
+
+1. **Read existing patterns first** — match `backend/app` and `frontend/src` layout before inventing new folders.
+2. **One feature = one vertical slice** when possible: API + service + UI wired end-to-end, not half-finished layers.
+3. **Plan only when needed** — multi-file / ambiguous work: short plan first; tiny fixes: just do it.
+4. **Surface trade-offs** in 1–2 lines when choices matter (e.g. mock vs real API, schema change).
+5. **Never surprise-delete** or rewrite working collectors/scoring without saying why.
+6. **After a feature**: say what changed, how to try it (routes/commands), and any follow-ups.
+7. **Research / sell / compete** → web search + page fetch extensively (see `research-mode`).
+8. **Open-source and models to reuse** → Cursor finds GitHub **HTTPS** links alone, then **clones + integrates** under `vendor/` without waiting for a pasted URL (see `github-integrate`). Human links override when given.
+9. Still **ask before commits/pushes**; cloning into `vendor/` and wiring a thin integration does **not** need a pre-ask when the task implies reuse.
+
+## Feature request checklist
+
+Before coding a new feature, confirm silently from context (or ask if missing):
+
+- Which surface? (`/dashboard`, `/brief`, `/concurrents`, `/sources`, API-only, collector-only)
+- Data: new table / new field / reuse existing?
+- Must work offline / without keys?
+- FR copy needed in UI?
+
+## Shared vocabulary
+
+| Term | Meaning |
+|------|---------|
+| Signal / media item | Raw collected unit |
+| Cluster / trend | Grouped rising topic |
+| Brief | Client context for matching |
+| Recommendation | Angles + format + urgency for a trend×brief |
+| Collector | Source adapter (RSS, API, mock) |
+| Popularité / fraîcheur | Circulation strength vs how recent |
+| Morning Radar | 9am workflow: what changed, why it matters, what to do |
+| Brand Brain | Brand DNA profile that filters every signal |
+| RAD Score | Proprietary Relevance × Acceleration × Differentiation |

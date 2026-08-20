@@ -1,0 +1,32 @@
+---
+description: React frontend structure and UI conventions for RadArt
+globs: frontend/**/*.{ts,tsx,css}
+alwaysApply: false
+---
+
+# Frontend architecture
+
+```
+src/app/          # providers, router, shell entry
+src/features/     # radar, brief, competitors, sources, pricing, contact
+src/shared/       # api, ui, lib, config
+```
+
+## Rules
+
+- Put page logic under `features/<name>/pages/`; reusable pieces in `features/<name>/components/` or `shared/ui/`.
+- API calls only through `shared/api` (TanStack Query in pages/hooks — do not scatter raw `fetch`).
+- Routes live in `app/router.tsx`; nav labels in `shared/config/nav.ts`.
+- TypeScript strict: no `any` unless bridging messy API data with a short comment.
+
+## UI
+
+- Match existing RadArt shell (AppShell, badges, filters, trend groups) — extend, don’t invent a second design system.
+- Agency dashboard: clear hierarchy, French product copy where screens already use FR.
+- Responsive: desktop + mobile usable; avoid clutter and duplicate KPI walls.
+- New screens: one job per page section (radar ≠ brief ≠ sources).
+
+## Data UX
+
+- Show loading / empty / error states for radar, brief results, and source status.
+- Refresh / collection actions must reflect backend status, not fake success.

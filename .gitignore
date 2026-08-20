@@ -27,7 +27,10 @@ vendor/
 # IDE / OS
 .idea/
 .vscode/
-.cursor/
+# Ignore Cursor local/IDE state; keep only shared project rules
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .DS_Store
 Thumbs.db
 *.log

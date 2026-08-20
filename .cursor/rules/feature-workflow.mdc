@@ -1,0 +1,28 @@
+---
+description: Step-by-step workflow when adding RadArt features
+alwaysApply: true
+---
+
+# Feature workflow
+
+When adding or changing a feature:
+
+1. **Locate the slice** — which API route, service, repo, and/or `features/*` page owns it.
+2. **Reuse** scoring, enrichment, and UI primitives before adding parallel ones.
+3. **Schema changes** — update DB init + any Pydantic models + frontend types together.
+4. **Keep the demo alive** — if a dependency can fail (API key, network), ship a fallback.
+5. **Wire UI last mile** — a backend-only feature should still document how to hit it; user-facing work needs a visible path in the app.
+6. **Verify** — run or state exact checks (`uvicorn`, `npm run dev`, `pytest`, key routes).
+
+## Good change
+
+```text
+POST /api/... → service → repository → optional Query hook → page section
+```
+
+## Bad change
+
+- New global state library for one form
+- Duplicate “trend score” logic in the frontend
+- Collector that writes recommendations directly
+- Big rewrite of working radar/brief flows for a small ask

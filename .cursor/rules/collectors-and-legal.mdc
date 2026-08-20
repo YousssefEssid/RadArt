@@ -1,0 +1,30 @@
+# Collectors & legal
+
+Priority order for new sources:
+
+1. RSS / public feeds  
+2. Official APIs when keys exist  
+3. Customer-owned exports the brand/agency has rights to use  
+4. Curated public pages only if ToS/robots allow  
+5. Licensed social firehose partners (roadmap)
+
+## Hard limits
+
+- User-Agent: `RadArtBot/1.0`
+- Rate-limit + timeouts; no infinite crawl
+- No login walls, paywall bypass, or private social scrapes
+- No unofficial Facebook / Instagram / TikTok scrapers
+- No mock / seeded fake media for demos — empty states when signal is thin
+- Collect only: title, URL, date, source, short text, public engagement when available
+
+## Tunisia reality
+
+MVP stack (RSS, Reddit, Google News, iTunes, optional YouTube/Trends) is strong for demos.
+Serious cultural intelligence needs denser FB/IG/TikTok signal via **official APIs**, **customer-owned data**, or **licensed providers** — never compliance shortcuts.
+
+## Implementation
+
+- One collector module per source family; register in the ingestion pipeline.
+- Fail soft: log/skip, never abort the whole `collect_all` run.
+- Normalize to the shared media-item shape before ingest.
+- Keep `/api/sources/coverage` honest about live vs needs_key vs planned vs forbidden.

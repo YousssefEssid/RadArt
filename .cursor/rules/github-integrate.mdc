@@ -1,0 +1,34 @@
+---
+description: Clone and integrate external GitHub repos or models — Cursor discovers links alone
+alwaysApply: true
+---
+
+# External GitHub / model integration
+
+**Autonomy (required):** Cursor must **find** relevant GitHub repos itself (web research), pick the best **HTTPS** clone URL (`https://github.com/org/repo.git`), **clone**, and **integrate** — without waiting for the human to paste a link. The human may still paste a link to override or speed things up.
+
+## Discover
+
+1. Search GitHub / the web for repos, models, or libs that match the task.
+2. Prefer maintained, well-licensed, focused repos over huge unrelated monorepos.
+3. Choose **HTTPS** clone URLs by default (`https://github.com/.../*.git`). Use SSH only if HTTPS fails or the human asks.
+4. Record the chosen URL in the summary.
+
+## Clone (do it — don’t only propose)
+
+1. Target: `vendor/<repo-name>` (or a path the human named) — **never** dump into repo root.
+2. Run `git clone <https-url> vendor/<repo-name>` yourself.
+3. On auth/network failure: report the error; retry HTTPS vs SSH once if sensible; don’t leak credentials.
+4. Do **not** commit large weights or full upstream history unless asked. Prefer thin copy, wrap, or document install steps.
+
+## Integrate (do it — don’t stop at clone)
+
+1. Read README + license before wiring.
+2. License: MIT/Apache OK to adapt; copyleft / restrictive → warn then pause only if legally blocking.
+3. Wire the **smallest useful slice** into RadArt layers (service/collector/feature); wrap upstream, don’t sprawl.
+4. Optional deps / feature flags so the demo still runs without the new piece.
+5. Afterward: where cloned, URL used, license, what was wired, how to run.
+
+## When the human pastes a link
+
+Use that URL as the source of truth and proceed (clone + integrate) the same way.

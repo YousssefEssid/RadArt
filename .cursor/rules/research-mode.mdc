@@ -1,0 +1,42 @@
+---
+description: Competitive research, market study, and sales-oriented investigation
+alwaysApply: true
+---
+
+# Research mode
+
+When the human asks for competition, market, positioning, “how to sell”, or tech to reuse — **use the web extensively**. Do not answer from memory alone.
+
+## When to research
+
+- Competitor products, features, pricing, positioning
+- Agency / media-intel / trend tools landscape (Tunisia + global)
+- Buyer pain, objections, demo narratives, pitch angles
+- Tech approaches, open-source repos, models to reuse in RadArt
+
+## How Cursor researches
+
+1. Run **multiple web searches** (competitors, reviews, pricing, GitHub, docs).
+2. **Fetch** key pages and extract facts.
+3. Prefer **primary sources**; note recency when relevant.
+4. When the goal is to **reuse code/models**: find candidate GitHub HTTPS links yourself, then follow `github-integrate` (clone + integrate) — do not wait for the human to paste URLs.
+5. Deliver a **structured brief**:
+   - What they do / who they sell to
+   - Strengths & gaps vs RadArt
+   - Pricing / packaging if public
+   - What we can copy, differentiate, or ignore
+   - Concrete sales angles
+   - For tech finds: chosen repo URL(s) + why
+
+## Output style
+
+- Short verdict first, then bullets or a comparison table.
+- Separate **facts** vs **recommendations**.
+- Always include important URLs (product pages + GitHub HTTPS when relevant).
+- If data is thin/paywalled: say what’s missing.
+
+## Efficiency
+
+- Batch searches; deep-dive the top 3–5 unless a wide scan is requested.
+- Reuse prior research in-chat; don’t re-fetch without reason.
+- Tie findings to RadArt: signal → brief → recommend.
